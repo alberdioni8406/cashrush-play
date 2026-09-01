@@ -39,7 +39,11 @@ function showOverlay(name) {
 }
 
 function hideOverlays() {
-  Object.values(overlays).forEach(o => o.classList.remove('active'));
+  Object.values(overlays).forEach(o => {
+    if (!o) return;
+    o.classList.remove('active');
+    o.style.display = '';
+  });
 }
 
 // Loading simulation
@@ -119,12 +123,21 @@ function onGameEvent(type, data) {
   } else if (type === 'resume') {
     hideOverlays();
   } else if (type === 'gameover') {
-    document.getElementById('go-score').textContent = data.score.toLocaleString();
-    document.getElementById('go-distance').textContent = data.distance + 'm';
-    document.getElementById('go-sats').textContent = data.sats.toLocaleString();
-    document.getElementById('go-combo').textContent = 'x' + data.maxCombo.toFixed(1);
-    document.getElementById('go-new-high').style.display = data.isNewHigh ? 'flex' : 'none';
+    try {
+      document.getElementById('go-score').textContent = (data.score || 0).toLocaleString();
+      document.getElementById('go-distance').textContent = (data.distance || 0) + 'm';
+      document.getElementById('go-sats').textContent = (data.sats || 0).toLocaleString();
+      document.getElementById('go-combo').textContent = 'x' + (data.maxCombo || 1).toFixed(1);
+      const highEl = document.getElementById('go-new-high');
+      if (highEl) highEl.style.display = data.isNewHigh ? 'flex' : 'none';
+    } catch (_) {}
     showOverlay('gameover');
+    // Force visibility in case of stacking/CSS race
+    const go = document.getElementById('gameover-overlay');
+    if (go) {
+      go.classList.add('active');
+      go.style.display = 'flex';
+    }
     updateMenuStats();
   }
 }

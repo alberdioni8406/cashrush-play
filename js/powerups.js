@@ -12,10 +12,11 @@ const POWER_TYPES = {
 };
 
 export class PowerUp {
-  constructor(type, x, y) {
+  constructor(type, x, y, scale = 1) {
     this.type = type;
     this.x = x;
     this.y = y;
+    this.scale = scale || 1;
     this.alive = true;
     this.collected = false;
     this.frame = 0;
@@ -23,7 +24,8 @@ export class PowerUp {
   }
 
   get hitbox() {
-    return { x: this.x - 12, y: this.y - 12, w: 24, h: 24 };
+    const s = 14 * (this.scale || 1);
+    return { x: this.x - s, y: this.y - s, w: s * 2, h: s * 2 };
   }
 
   update(dt, speed) {
@@ -35,25 +37,26 @@ export class PowerUp {
 
   draw(ctx) {
     const { x, y, info, type } = this;
+    const sc = this.scale || 1;
     ctx.save();
     ctx.shadowColor = info.color;
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = 16 * sc;
 
     // Outer ring
     ctx.strokeStyle = info.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5 * sc;
     ctx.beginPath();
-    ctx.arc(x, y, 14 + Math.sin(this.frame * 2) * 2, 0, Math.PI * 2);
+    ctx.arc(x, y, (16 + Math.sin(this.frame * 2) * 2) * sc, 0, Math.PI * 2);
     ctx.stroke();
 
     // Core
     ctx.fillStyle = info.color;
     ctx.beginPath();
-    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.arc(x, y, 10 * sc, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 7px monospace';
+    ctx.font = `bold ${Math.round(9 * sc)}px monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const short = type === 'hashrush' ? 'HR' : type === 'magnet' ? 'M' : type === 'shield' ? 'S' : 'B';
@@ -67,11 +70,16 @@ export class PowerUpManager {
   constructor() {
     this.list = [];
     this.spawnTimer = 0;
+    this.scale = 1;
   }
 
   reset() {
     this.list = [];
     this.spawnTimer = 180;
+  }
+
+  setScale(s) {
+    this.scale = s || 1;
   }
 
   update(dt, speed, groundY, canvasW) {
@@ -88,7 +96,7 @@ export class PowerUpManager {
   }
 
   spawn(groundY, canvasW) {
-    const types = ['magnet', 'shield', 'speed', 'hashrush'];
+    const sc = this.scale || 1;
     // HashRush rarer
     const r = Math.random();
     let type;
@@ -97,8 +105,8 @@ export class PowerUpManager {
     else if (r < 0.65) type = 'magnet';
     else type = 'speed';
 
-    const y = groundY - 40 - Math.random() * 70;
-    this.list.push(new PowerUp(type, canvasW + 40, y));
+    const y = groundY - Math.round(45 * sc) - Math.random() * Math.round(80 * sc);
+    this.list.push(new PowerUp(type, canvasW + 40, y, sc));
   }
 
   checkCollections(player) {

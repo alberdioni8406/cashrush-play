@@ -10,6 +10,7 @@ export class Collectible {
     this.x = x;
     this.y = y;
     this.rarity = extra.rarity || 'common';
+    this.scale = extra.scale || 1;
     this.alive = true;
     this.collected = false;
     this.frame = Math.random() * 10;
@@ -18,7 +19,8 @@ export class Collectible {
   }
 
   get hitbox() {
-    const s = this.type === 'sat' ? 12 : this.type === 'cashDrop' ? 20 : 16;
+    const base = this.type === 'sat' ? 14 : this.type === 'cashDrop' ? 24 : 18;
+    const s = base * (this.scale || 1);
     return { x: this.x - s / 2, y: this.y - s / 2, w: s, h: s };
   }
 
@@ -44,43 +46,44 @@ export class Collectible {
 
   draw(ctx) {
     const { x, y, type, rarity } = this;
+    const sc = this.scale || 1;
     ctx.save();
 
     if (type === 'sat') {
-      // Small green sat
+      const r = 8 * sc;
       ctx.shadowColor = CONFIG.COLORS.green;
-      ctx.shadowBlur = 6;
+      ctx.shadowBlur = 8 * sc;
       ctx.fillStyle = CONFIG.COLORS.green;
       ctx.beginPath();
-      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = CONFIG.COLORS.greenGlow;
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.arc(x, y, r * 0.45, 0, Math.PI * 2);
       ctx.fill();
-      // tiny ₿
       ctx.fillStyle = '#003300';
-      ctx.font = 'bold 7px monospace';
+      ctx.font = `bold ${Math.round(9 * sc)}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('₿', x, y + 2.5);
+      ctx.textBaseline = 'middle';
+      ctx.fillText('₿', x, y + 1);
     } else if (type === 'cashDrop') {
-      // Distinctive diamond-like drop
+      const sz = 14 * sc;
       ctx.shadowColor = CONFIG.COLORS.gold;
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14 * sc;
       ctx.fillStyle = CONFIG.COLORS.gold;
       ctx.beginPath();
-      ctx.moveTo(x, y - 12);
-      ctx.lineTo(x + 10, y);
-      ctx.lineTo(x, y + 12);
-      ctx.lineTo(x - 10, y);
+      ctx.moveTo(x, y - sz);
+      ctx.lineTo(x + sz * 0.85, y);
+      ctx.lineTo(x, y + sz);
+      ctx.lineTo(x - sz * 0.85, y);
       ctx.closePath();
       ctx.fill();
       ctx.fillStyle = '#fff8e1';
       ctx.beginPath();
-      ctx.moveTo(x, y - 6);
-      ctx.lineTo(x + 5, y);
-      ctx.lineTo(x, y + 6);
-      ctx.lineTo(x - 5, y);
+      ctx.moveTo(x, y - sz * 0.5);
+      ctx.lineTo(x + sz * 0.4, y);
+      ctx.lineTo(x, y + sz * 0.5);
+      ctx.lineTo(x - sz * 0.4, y);
       ctx.closePath();
       ctx.fill();
     } else if (type === 'orb') {
@@ -91,24 +94,24 @@ export class Collectible {
         legendary: CONFIG.COLORS.gold
       };
       const col = colors[rarity] || colors.common;
+      const r = 11 * sc;
       ctx.shadowColor = col;
-      ctx.shadowBlur = rarity === 'legendary' ? 16 : 8;
+      ctx.shadowBlur = (rarity === 'legendary' ? 18 : 10) * sc;
       ctx.fillStyle = col;
       ctx.beginPath();
-      ctx.arc(x, y, 9, 0, Math.PI * 2);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#fff';
       ctx.globalAlpha = 0.5;
       ctx.beginPath();
-      ctx.arc(x - 2, y - 2, 3, 0, Math.PI * 2);
+      ctx.arc(x - 2 * sc, y - 2 * sc, 3.5 * sc, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
-      // Rarity ring
       if (rarity !== 'common') {
         ctx.strokeStyle = col;
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2 * sc;
         ctx.beginPath();
-        ctx.arc(x, y, 12 + Math.sin(this.frame) * 2, 0, Math.PI * 2);
+        ctx.arc(x, y, r + 4 * sc + Math.sin(this.frame) * 2 * sc, 0, Math.PI * 2);
         ctx.stroke();
       }
     }
@@ -121,11 +124,16 @@ export class CollectibleManager {
   constructor() {
     this.list = [];
     this.spawnTimer = 0;
+    this.scale = 1;
   }
 
   reset() {
     this.list = [];
     this.spawnTimer = 40;
+  }
+
+  setScale(s) {
+    this.scale = s || 1;
   }
 
   update(dt, speed, player, groundY, canvasW) {
@@ -144,19 +152,20 @@ export class CollectibleManager {
   }
 
   spawn(groundY, canvasW) {
+    const sc = this.scale || 1;
     const x = canvasW + 30 + Math.random() * 60;
-    // Height: ground level or floating
-    const yBase = groundY - 30 - Math.random() * 90;
+    // Height: ground level or floating (scaled)
+    const yBase = groundY - Math.round(35 * sc) - Math.random() * Math.round(100 * sc);
     const r = Math.random();
 
     if (r < 0.72) {
       // Sat cluster possible
       const count = Math.random() < 0.3 ? 3 : 1;
       for (let i = 0; i < count; i++) {
-        this.list.push(new Collectible('sat', x + i * 18, yBase - i * 8));
+        this.list.push(new Collectible('sat', x + i * 20 * sc, yBase - i * 10 * sc, { scale: sc }));
       }
     } else if (r < 0.90) {
-      this.list.push(new Collectible('cashDrop', x, yBase));
+      this.list.push(new Collectible('cashDrop', x, yBase, { scale: sc }));
     } else {
       // Token Orb with rarity
       const rr = Math.random();
@@ -164,7 +173,7 @@ export class CollectibleManager {
       if (rr > 0.97) rarity = 'legendary';
       else if (rr > 0.88) rarity = 'rare';
       else if (rr > 0.65) rarity = 'uncommon';
-      this.list.push(new Collectible('orb', x, yBase, { rarity }));
+      this.list.push(new Collectible('orb', x, yBase, { rarity, scale: sc }));
     }
   }
 

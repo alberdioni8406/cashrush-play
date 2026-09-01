@@ -8,14 +8,19 @@ export const CONFIG = {
   TARGET_FPS: 60,
   PIXEL_SCALE: 2,           // internal resolution multiplier for crisp pixels
   GROUND_Y_RATIO: 0.78,     // ground line as fraction of canvas height
+  // Base design height used for responsive scaling (entities grow on large screens)
+  DESIGN_HEIGHT: 480,
+  // Min/max scale so mobile stays readable and desktop doesn't become huge
+  SCALE_MIN: 1.0,
+  SCALE_MAX: 2.2,
 
-  // Player physics
+  // Player physics (base sizes — multiplied by world scale at runtime)
   GRAVITY: 0.55,
   JUMP_FORCE: -11.5,
   DUCK_HEIGHT_RATIO: 0.55,
-  PLAYER_WIDTH: 32,
-  PLAYER_HEIGHT: 48,
-  PLAYER_X_RATIO: 0.18,     // fixed X position as fraction of width
+  PLAYER_WIDTH: 40,
+  PLAYER_HEIGHT: 56,
+  PLAYER_X_RATIO: 0.16,     // fixed X position as fraction of width
 
   // Speed & difficulty
   BASE_SPEED: 5.5,

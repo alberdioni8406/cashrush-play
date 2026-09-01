@@ -62,15 +62,26 @@ export class Game {
     this.w = w;
     this.h = h;
     this.groundY = h * CONFIG.GROUND_Y_RATIO;
+    // Responsive world scale: larger on desktop, still readable on mobile
+    const raw = h / (CONFIG.DESIGN_HEIGHT || 480);
+    this.worldScale = Math.min(CONFIG.SCALE_MAX || 2.2, Math.max(CONFIG.SCALE_MIN || 1, raw));
     if (this.player) {
+      this.applyPlayerScale();
       this.player.x = w * CONFIG.PLAYER_X_RATIO;
       if (!this.running) this.player.y = this.groundY - this.player.height;
     }
   }
 
+  applyPlayerScale() {
+    const s = this.worldScale || 1;
+    this.player.width = Math.round(CONFIG.PLAYER_WIDTH * s);
+    this.player.height = Math.round(CONFIG.PLAYER_HEIGHT * s);
+  }
+
   start(charId) {
     this.player.setCharacter(charId || Storage.get('selectedCharacter') || 'cash');
     this.player.reset();
+    this.applyPlayerScale();
     this.player.x = this.w * CONFIG.PLAYER_X_RATIO;
     this.player.y = this.groundY - this.player.height;
 
@@ -166,8 +177,11 @@ export class Game {
     });
 
     this.player.update(dt, this.groundY, effectiveSpeed);
+    this.obstacles.setScale(this.worldScale || 1);
     this.obstacles.update(dt, effectiveSpeed, this.groundY, this.w, this.score);
+    this.collectibles.setScale?.(this.worldScale || 1);
     this.collectibles.update(dt, effectiveSpeed, this.player, this.groundY, this.w);
+    this.powerups.setScale?.(this.worldScale || 1);
     this.powerups.update(dt, effectiveSpeed, this.groundY, this.w);
 
     // Combo decay
@@ -277,49 +291,56 @@ export class Game {
   endGame() {
     this.gameOver = true;
     this.running = false;
-    Audio.gameOver();
-    Audio.stopMusic();
+    try { Audio.gameOver(); } catch (_) {}
+    try { Audio.stopMusic(); } catch (_) {}
 
-    // Persist
-    const data = Storage.data;
-    const isNewHigh = this.score > data.highScore;
-    if (isNewHigh) data.highScore = Math.floor(this.score);
-    data.totalDistance += Math.floor(this.distance);
-    data.totalSats += this.sats;
-    data.totalPlayTime += this.runTime;
-    data.stats.gamesPlayed = (data.stats.gamesPlayed || 0) + 1;
-    data.stats.feeWallsJumped = (data.stats.feeWallsJumped || 0) + this.feeWallsJumped;
-    data.stats.hashrushActivations = (data.stats.hashrushActivations || 0) + this.hashrushCount;
-    data.stats.maxCombo = Math.max(data.stats.maxCombo || 0, this.maxCombo);
-    Storage.save();
+    let isNewHigh = false;
+    try {
+      if (!Storage.data) Storage.load();
+      const data = Storage.data;
+      isNewHigh = this.score > (data.highScore || 0);
+      if (isNewHigh) data.highScore = Math.floor(this.score);
+      data.totalDistance = (data.totalDistance || 0) + Math.floor(this.distance);
+      data.totalSats = (data.totalSats || 0) + this.sats;
+      data.totalPlayTime = (data.totalPlayTime || 0) + this.runTime;
+      data.stats = data.stats || {};
+      data.stats.gamesPlayed = (data.stats.gamesPlayed || 0) + 1;
+      data.stats.feeWallsJumped = (data.stats.feeWallsJumped || 0) + this.feeWallsJumped;
+      data.stats.hashrushActivations = (data.stats.hashrushActivations || 0) + this.hashrushCount;
+      data.stats.maxCombo = Math.max(data.stats.maxCombo || 0, this.maxCombo);
+      Storage.save();
+      Storage.checkCharacterUnlocks(data.highScore);
+      Achievements.checkRun({
+        gamesPlayed: data.stats.gamesPlayed,
+        satsThisRun: this.satsThisRun,
+        distance: this.distance,
+        maxCombo: this.maxCombo,
+        runTime: this.runTime
+      });
+      Achievements.checkProgress({
+        totalSats: data.totalSats,
+        totalPlayTime: data.totalPlayTime,
+        feeWallsJumped: data.stats.feeWallsJumped,
+        hashrushActivations: data.stats.hashrushActivations,
+        totalDistance: data.totalDistance,
+        gamesPlayed: data.stats.gamesPlayed
+      });
+    } catch (err) {
+      console.warn('endGame persist error', err);
+    }
 
-    // Unlock characters
-    Storage.checkCharacterUnlocks(data.highScore);
-
-    // Achievements
-    Achievements.checkRun({
-      gamesPlayed: data.stats.gamesPlayed,
-      satsThisRun: this.satsThisRun,
-      distance: this.distance,
-      maxCombo: this.maxCombo,
-      runTime: this.runTime
-    });
-    Achievements.checkProgress({
-      totalSats: data.totalSats,
-      totalPlayTime: data.totalPlayTime,
-      feeWallsJumped: data.stats.feeWallsJumped,
-      hashrushActivations: data.stats.hashrushActivations,
-      totalDistance: data.totalDistance,
-      gamesPlayed: data.stats.gamesPlayed
-    });
-
-    this.onEvent('gameover', {
-      score: Math.floor(this.score),
-      distance: Math.floor(this.distance),
-      sats: this.sats,
-      maxCombo: this.maxCombo,
-      isNewHigh
-    });
+    // Always fire UI event even if persist fails
+    try {
+      this.onEvent('gameover', {
+        score: Math.floor(this.score),
+        distance: Math.floor(this.distance),
+        sats: this.sats,
+        maxCombo: this.maxCombo,
+        isNewHigh
+      });
+    } catch (err) {
+      console.warn('gameover UI event failed', err);
+    }
   }
 
   // Input

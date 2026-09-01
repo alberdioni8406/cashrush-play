@@ -6,35 +6,36 @@ import { CONFIG } from './config.js';
 
 const TYPES = {
   feeWall: {
-    w: 28, h: 56, color: '#ff3366',
+    w: 36, h: 70, color: '#ff3366',
     label: 'FEE', needsJump: true, needsDuck: false
   },
   mempoolMonster: {
-    w: 40, h: 36, color: '#ff6d00',
+    w: 48, h: 44, color: '#ff6d00',
     label: 'MPOOL', needsJump: true, needsDuck: false, moves: true
   },
   centralizer: {
-    w: 48, h: 70, color: '#d500f9',
+    w: 56, h: 84, color: '#d500f9',
     label: 'CTRL', needsJump: true, needsDuck: false, complex: true
   },
   brokenBlock: {
-    w: 32, h: 32, color: '#ffaa00',
+    w: 40, h: 40, color: '#ffaa00',
     label: 'BLK', needsJump: true, needsDuck: false, falls: true
   },
   redTape: {
-    w: 60, h: 18, color: '#ff1744',
+    w: 72, h: 22, color: '#ff1744',
     label: 'TAPE', needsJump: false, needsDuck: true, slows: true
   }
 };
 
 export class Obstacle {
-  constructor(type, x, groundY) {
+  constructor(type, x, groundY, scale = 1) {
     const t = TYPES[type] || TYPES.feeWall;
+    const s = scale || 1;
     this.type = type;
     this.x = x;
-    this.y = groundY - t.h;
-    this.w = t.w;
-    this.h = t.h;
+    this.w = Math.round(t.w * s);
+    this.h = Math.round(t.h * s);
+    this.y = groundY - this.h;
     this.color = t.color;
     this.label = t.label;
     this.needsJump = t.needsJump;
@@ -146,12 +147,17 @@ export class ObstacleManager {
     this.list = [];
     this.spawnTimer = 0;
     this.spawnInterval = CONFIG.OBSTACLE_SPAWN_BASE;
+    this.scale = 1;
   }
 
   reset() {
     this.list = [];
     this.spawnTimer = 60;
     this.spawnInterval = CONFIG.OBSTACLE_SPAWN_BASE;
+  }
+
+  setScale(s) {
+    this.scale = s || 1;
   }
 
   update(dt, speed, groundY, canvasW, score) {
@@ -173,6 +179,7 @@ export class ObstacleManager {
 
   spawn(groundY, canvasW, progress) {
     const types = CONFIG.OBSTACLE_TYPES;
+    const s = this.scale || 1;
     // Weight toward harder types later
     let type;
     const r = Math.random();
@@ -186,16 +193,16 @@ export class ObstacleManager {
       type = hard[Math.floor(Math.random() * hard.length)];
     }
 
-    const o = new Obstacle(type, canvasW + 20, groundY);
+    const o = new Obstacle(type, canvasW + 20, groundY, s);
 
-    // Red tape is mid-air
+    // Red tape is mid-air (scaled)
     if (type === 'redTape') {
-      o.y = groundY - 55;
-      o.h = 16;
+      o.y = groundY - Math.round(60 * s);
+      o.h = Math.round(20 * s);
     }
     // Occasional double spawn
     if (progress > 0.4 && Math.random() < 0.25) {
-      const o2 = new Obstacle('feeWall', canvasW + 80 + Math.random() * 40, groundY);
+      const o2 = new Obstacle('feeWall', canvasW + 80 + Math.random() * 40, groundY, s);
       this.list.push(o2);
     }
 
