@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0f0a" />
+  <meta name="description" content="CASHRUSH — Run. Survive. Collect. Own. A fast-paced endless runner inspired by open digital economies." />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/images/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/images/icon-192.png" />
+  <title>CASHRUSH</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+      <div class="loading-content">
+        <div class="logo-pixel">CASHRUSH</div>
+        <div class="tagline">Run. Survive. Collect. Own.</div>
+        <div class="loading-bar-wrap">
+          <div id="loading-bar" class="loading-bar"></div>
+        </div>
+        <div id="loading-text" class="loading-text">Initializing Grid...</div>
+      </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div id="main-menu" class="screen">
+      <div class="menu-bg"></div>
+      <div class="menu-content">
+        <h1 class="logo-pixel">CASHRUSH</h1>
+        <p class="tagline">Run. Survive. Collect. Own.</p>
+        <nav class="menu-nav">
+          <button id="btn-play" class="menu-btn primary">PLAY</button>
+          <button id="btn-characters" class="menu-btn">CHARACTERS</button>
+          <button id="btn-achievements" class="menu-btn">ACHIEVEMENTS</button>
+          <button id="btn-settings" class="menu-btn">SETTINGS</button>
+        </nav>
+        <div class="menu-stats">
+          <div class="stat"><span class="stat-label">HIGH SCORE</span><span id="menu-highscore">0</span></div>
+          <div class="stat"><span class="stat-label">TOTAL SATS</span><span id="menu-totalsats">0</span></div>
+        </div>
+        <div class="menu-donate">
+          <button id="btn-donate" class="donate-btn" title="Support the founder">♥ SUPPORT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Select -->
+    <div id="character-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" data-back="main-menu">← BACK</button>
+        <h2>CHARACTERS</h2>
+      </div>
+      <div id="character-list" class="character-list"></div>
+      <button id="btn-select-char" class="menu-btn primary">SELECT</button>
+    </div>
+
+    <!-- Achievements -->
+    <div id="achievements-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" data-back="main-menu">← BACK</button>
+        <h2>ACHIEVEMENTS</h2>
+      </div>
+      <div id="achievements-list" class="achievements-list"></div>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" data-back="main-menu">← BACK</button>
+        <h2>SETTINGS</h2>
+      </div>
+      <div class="settings-list">
+        <label class="setting-row">
+          <span>Sound Effects</span>
+          <input type="checkbox" id="setting-sfx" checked />
+        </label>
+        <label class="setting-row">
+          <span>Music</span>
+          <input type="checkbox" id="setting-music" checked />
+        </label>
+        <label class="setting-row">
+          <span>Mobile Controls</span>
+          <input type="checkbox" id="setting-mobile-controls" />
+        </label>
+        <label class="setting-row">
+          <span>Reduced Motion</span>
+          <input type="checkbox" id="setting-reduced-motion" />
+        </label>
+        <div class="donate-section">
+          <div class="donate-title">SUPPORT THE FOUNDER</div>
+          <p class="donate-desc">CASHRUSH is free. If you enjoy it, you can send Bitcoin Cash to help keep the Grid running.</p>
+          <button id="btn-copy-donate" class="menu-btn primary donate-copy-btn">COPY BCH ADDRESS</button>
+          <div id="donate-address" class="donate-address">bitcoincash:qrlluw2ekm2zmp4qn52ashn4qt9xhhg405gcrzehu5</div>
+          <div id="donate-copied" class="donate-copied hidden">Address copied!</div>
+        </div>
+        <button id="btn-reset-data" class="menu-btn danger">RESET ALL DATA</button>
+      </div>
+    </div>
+
+    <!-- Game Canvas Container -->
+    <div id="game-screen" class="screen">
+      <canvas id="game-canvas"></canvas>
+      <div id="hud">
+        <div class="hud-top">
+          <div class="hud-item">
+            <span class="hud-label">SCORE</span>
+            <span id="hud-score">0</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">SATS</span>
+            <span id="hud-sats">0</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">DIST</span>
+            <span id="hud-distance">0m</span>
+          </div>
+          <div class="hud-item combo-hud">
+            <span class="hud-label">COMBO</span>
+            <span id="hud-combo">x1</span>
+          </div>
+        </div>
+        <div id="powerup-indicator" class="powerup-indicator hidden"></div>
+        <div id="ability-meter" class="ability-meter hidden">
+          <div id="ability-fill" class="ability-fill"></div>
+        </div>
+      </div>
+      <div id="mobile-controls" class="mobile-controls hidden">
+        <button id="btn-jump" class="control-btn">JUMP</button>
+        <button id="btn-duck" class="control-btn">DUCK</button>
+      </div>
+      <button id="btn-pause" class="pause-btn">❚❚</button>
+    </div>
+
+    <!-- Pause Overlay -->
+    <div id="pause-overlay" class="overlay">
+      <div class="overlay-content">
+        <h2>PAUSED</h2>
+        <button id="btn-resume" class="menu-btn primary">RESUME</button>
+        <button id="btn-restart" class="menu-btn">RESTART</button>
+        <button id="btn-quit" class="menu-btn">QUIT TO MENU</button>
+      </div>
+    </div>
+
+    <!-- Game Over -->
+    <div id="gameover-overlay" class="overlay">
+      <div class="overlay-content">
+        <h2>GAME OVER</h2>
+        <div class="gameover-stats">
+          <div class="go-stat"><span>SCORE</span><span id="go-score">0</span></div>
+          <div class="go-stat"><span>DISTANCE</span><span id="go-distance">0m</span></div>
+          <div class="go-stat"><span>SATS</span><span id="go-sats">0</span></div>
+          <div class="go-stat"><span>COMBO MAX</span><span id="go-combo">x1</span></div>
+          <div class="go-stat highscore" id="go-new-high" style="display:none"><span>NEW HIGH SCORE!</span></div>
+        </div>
+        <button id="btn-retry" class="menu-btn primary">RUN AGAIN</button>
+        <button id="btn-menu" class="menu-btn">MAIN MENU</button>
+      </div>
+    </div>
+
+    <!-- Achievement Toast -->
+    <div id="achievement-toast" class="achievement-toast hidden">
+      <div class="toast-icon">★</div>
+      <div class="toast-text">
+        <div class="toast-title">ACHIEVEMENT</div>
+        <div id="toast-name" class="toast-name"></div>
+      </div>
+    </div>
+
+    <!-- Donate Overlay -->
+    <div id="donate-overlay" class="overlay">
+      <div class="overlay-content donate-overlay-content">
+        <h2>SUPPORT</h2>
+        <p class="donate-desc">CASHRUSH is free and always playable offline. If you'd like to support the founder, send Bitcoin Cash to:</p>
+        <div class="donate-address-box" id="donate-address-box">
+          bitcoincash:qrlluw2ekm2zmp4qn52ashn4qt9xhhg405gcrzehu5
+        </div>
+        <button id="btn-copy-donate-modal" class="menu-btn primary">COPY ADDRESS</button>
+        <div id="donate-copied-modal" class="donate-copied hidden">Copied to clipboard!</div>
+        <button id="btn-close-donate" class="menu-btn">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
