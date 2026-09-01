@@ -570,27 +570,34 @@ html, body {
   transform: scale(0.95);
 }
 
-/* Overlays */
+/* Overlays — fixed so they always sit above the canvas/game screen */
 .overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  background: rgba(0, 8, 0, 0.88);
+  background: rgba(0, 8, 0, 0.92);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 50;
-  backdrop-filter: blur(4px);
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .overlay.active {
-  display: flex;
+  display: flex !important;
 }
 
 .overlay-content {
   text-align: center;
   padding: 2rem 1.5rem;
-  max-width: 340px;
+  max-width: 360px;
   width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10000;
 }
 
 .overlay-content h2 {
@@ -604,6 +611,10 @@ html, body {
 .overlay-content .menu-btn {
   width: 100%;
   margin-bottom: 0.7rem;
+  pointer-events: auto;
+  cursor: pointer;
+  min-height: 48px;
+  touch-action: manipulation;
 }
 
 .gameover-stats {
