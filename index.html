@@ -36,6 +36,7 @@
         <p class="tagline">Run. Survive. Collect. Own.</p>
         <nav class="menu-nav">
           <button id="btn-play" class="menu-btn primary">PLAY</button>
+          <button id="btn-howto" class="menu-btn">HOW TO PLAY</button>
           <button id="btn-characters" class="menu-btn">CHARACTERS</button>
           <button id="btn-achievements" class="menu-btn">ACHIEVEMENTS</button>
           <button id="btn-settings" class="menu-btn">SETTINGS</button>
@@ -47,6 +48,49 @@
         <div class="menu-donate">
           <button id="btn-donate" class="donate-btn" title="Support the founder">♥ SUPPORT</button>
         </div>
+      </div>
+    </div>
+
+
+    <!-- How to Play -->
+    <div id="howto-screen" class="screen">
+      <div class="screen-header">
+        <button class="back-btn" data-back="main-menu">← BACK</button>
+        <h2>HOW TO PLAY</h2>
+      </div>
+      <div class="howto-content">
+        <div class="howto-block">
+          <h3>THE GOAL</h3>
+          <p>Run through <strong>The Grid</strong>. Survive as long as you can, collect virtual sats, and clear <strong>Sectors</strong> to climb the protocol.</p>
+        </div>
+        <div class="howto-block">
+          <h3>CONTROLS</h3>
+          <p><strong>Desktop:</strong> Space / ↑ Jump · ↓ / S Duck · P Pause · E Ability</p>
+          <p><strong>Mobile:</strong> Tap to Jump · Swipe down to Duck · Hold DUCK button</p>
+        </div>
+        <div class="howto-block">
+          <h3>OBSTACLES</h3>
+          <p><span class="tag danger">FEE WALL</span> Jump over</p>
+          <p><span class="tag danger">MEMPOOL</span> Jump over or avoid</p>
+          <p><span class="tag danger">CENTRALIZER</span> Tall barrier — jump</p>
+          <p><span class="tag warning">RED TAPE</span> Duck under</p>
+          <p><span class="tag warning">BROKEN BLOCK</span> Jump over</p>
+        </div>
+        <div class="howto-block">
+          <h3>COLLECT &amp; POWER</h3>
+          <p><span class="tag green">SATS</span> Score · <span class="tag gold">CASH DROP</span> Big bonus · <span class="tag cyan">ORBS</span> Rare value</p>
+          <p><span class="tag cyan">MAGNET</span> Pull items · <span class="tag cyan">SHIELD</span> Survive one hit</p>
+          <p><span class="tag green">BOOST</span> Speed · <span class="tag green">HASHRUSH</span> Invincible frenzy</p>
+        </div>
+        <div class="howto-block">
+          <h3>SECTORS</h3>
+          <p>Each sector has a distance goal. Reach it to clear the sector, earn a bonus, and unlock the next zone. Sector 10 is the Infinite Grid — endless high-score territory.</p>
+        </div>
+        <div class="howto-block">
+          <h3>COMBO</h3>
+          <p>Collect items in a streak to raise your multiplier. Missing for too long or crashing resets the combo.</p>
+        </div>
+        <button id="btn-howto-play" class="menu-btn primary">GOT IT — PLAY</button>
       </div>
     </div>
 
@@ -124,6 +168,14 @@
             <span class="hud-label">COMBO</span>
             <span id="hud-combo">x1</span>
           </div>
+          <div class="hud-item">
+            <span class="hud-label">SECTOR</span>
+            <span id="hud-sector">S1</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">GOAL</span>
+            <span id="hud-goal">400m</span>
+          </div>
         </div>
         <div id="powerup-indicator" class="powerup-indicator hidden"></div>
         <div id="ability-meter" class="ability-meter hidden">
@@ -147,6 +199,21 @@
       </div>
     </div>
 
+    
+    <!-- Sector Cleared -->
+    <div id="sector-overlay" class="overlay">
+      <div class="overlay-content">
+        <h2>SECTOR CLEARED</h2>
+        <div class="gameover-stats">
+          <div class="go-stat"><span>CLEARED</span><span id="sector-cleared-name">—</span></div>
+          <div class="go-stat"><span>BONUS</span><span id="sector-bonus">0</span></div>
+          <div class="go-stat"><span>NEXT</span><span id="sector-next-name">—</span></div>
+        </div>
+        <p class="donate-desc" id="sector-next-blurb"></p>
+        <button id="btn-sector-continue" class="menu-btn primary">CONTINUE RUN</button>
+      </div>
+    </div>
+
     <!-- Game Over -->
     <div id="gameover-overlay" class="overlay">
       <div class="overlay-content">
@@ -156,6 +223,7 @@
           <div class="go-stat"><span>DISTANCE</span><span id="go-distance">0m</span></div>
           <div class="go-stat"><span>SATS</span><span id="go-sats">0</span></div>
           <div class="go-stat"><span>COMBO MAX</span><span id="go-combo">x1</span></div>
+          <div class="go-stat"><span>SECTORS</span><span id="go-sectors">0</span></div>
           <div class="go-stat highscore" id="go-new-high" style="display:none"><span>NEW HIGH SCORE!</span></div>
         </div>
         <button id="btn-retry" class="menu-btn primary">RUN AGAIN</button>
