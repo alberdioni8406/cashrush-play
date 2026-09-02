@@ -912,3 +912,187 @@ html, body {
   margin-top: 0.5rem;
   margin-bottom: 1.5rem;
 }
+
+/* Achievement toast actions */
+.toast-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 0.75rem;
+}
+
+.toast-btn {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.65rem;
+  background: transparent;
+  border: 1px solid var(--green-dim);
+  color: var(--green);
+  cursor: pointer;
+}
+
+.toast-btn.primary {
+  background: rgba(0, 230, 118, 0.15);
+  border-color: var(--green);
+  color: var(--white);
+}
+
+.toast-btn:hover {
+  border-color: var(--green);
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.3);
+}
+
+.achievement-toast {
+  flex-wrap: wrap;
+  max-width: min(420px, 94vw);
+}
+
+/* Achievement list as buttons */
+.ach-item {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ach-item.secret:not(.unlocked) {
+  opacity: 0.55;
+}
+
+.ach-req {
+  font-size: 0.55rem;
+  color: var(--cyan);
+  margin-top: 0.2rem;
+  letter-spacing: 0.04em;
+}
+
+.ach-bar {
+  margin-top: 0.35rem;
+  height: 4px;
+  background: rgba(0, 40, 0, 0.8);
+  border: 1px solid rgba(0, 168, 84, 0.35);
+  overflow: hidden;
+}
+
+.ach-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-dim), var(--green));
+}
+
+/* Achievement detail overlay inside achievements screen */
+.achievement-detail {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 8, 0, 0.94);
+  z-index: 5;
+  overflow-y: auto;
+  display: none;
+  padding: 1rem;
+}
+
+.achievement-detail.active {
+  display: block;
+}
+
+.achievement-detail.hidden {
+  display: none !important;
+}
+
+.ach-detail-panel {
+  max-width: 440px;
+  margin: 3rem auto 2rem;
+  text-align: center;
+}
+
+.ach-detail-icon {
+  font-size: 2.8rem;
+  margin: 1rem 0 0.5rem;
+  color: var(--green);
+  text-shadow: 0 0 12px var(--green-glow);
+}
+
+.ach-detail-name {
+  font-size: 1.2rem;
+  letter-spacing: 0.15em;
+  color: var(--green);
+  margin-bottom: 0.35rem;
+}
+
+.ach-detail-status {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--cyan);
+  margin-bottom: 0.75rem;
+}
+
+.ach-detail-desc {
+  font-size: 0.8rem;
+  color: var(--white);
+  margin-bottom: 0.4rem;
+}
+
+.ach-detail-req {
+  font-size: 0.65rem;
+  color: var(--green-dim);
+  margin-bottom: 1.25rem;
+}
+
+.ach-discovery {
+  text-align: left;
+  padding: 1rem;
+  border: 1px solid rgba(0, 168, 84, 0.35);
+  background: rgba(0, 20, 0, 0.5);
+  margin-bottom: 1.25rem;
+}
+
+.ach-discovery-title {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--green-dim);
+  margin-bottom: 0.35rem;
+}
+
+.ach-discovery-heading {
+  font-size: 0.9rem;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.ach-discovery-body {
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  line-height: 1.5;
+}
+
+.ach-links {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ach-link {
+  font-size: 0.65rem;
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+  padding: 0.3rem 0.55rem;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+}
+
+.ach-link:hover {
+  background: rgba(0, 229, 255, 0.12);
+}
+
+.ach-locked-note {
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  margin-bottom: 1rem;
+}
+
+.ach-detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
