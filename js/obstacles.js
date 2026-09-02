@@ -52,7 +52,15 @@ export class Obstacle {
   }
 
   get hitbox() {
-    return { x: this.x + 4, y: this.y + 4, w: this.w - 8, h: this.h - 8 };
+    // Inset so only a solid body impact counts, not a 1px graze
+    const ix = Math.max(4, Math.floor(this.w * 0.15));
+    const iy = Math.max(4, Math.floor(this.h * 0.12));
+    return {
+      x: this.x + ix,
+      y: this.y + iy,
+      w: Math.max(6, this.w - ix * 2),
+      h: Math.max(6, this.h - iy * 2)
+    };
   }
 
   update(dt, speed) {
@@ -214,8 +222,18 @@ export class ObstacleManager {
     for (const o of this.list) {
       if (o.hit) continue;
       const oh = o.hitbox;
-      if (ph.x < oh.x + oh.w && ph.x + ph.w > oh.x &&
-          ph.y < oh.y + oh.h && ph.y + ph.h > oh.y) {
+      // Axis overlap
+      const overlapX = Math.min(ph.x + ph.w, oh.x + oh.w) - Math.max(ph.x, oh.x);
+      const overlapY = Math.min(ph.y + ph.h, oh.y + oh.h) - Math.max(ph.y, oh.y);
+      if (overlapX <= 0 || overlapY <= 0) continue;
+
+      // Require a concrete impact: meaningful area, not a light corner graze
+      const minDim = Math.min(ph.w, ph.h, oh.w, oh.h);
+      const area = overlapX * overlapY;
+      const areaThreshold = minDim * minDim * 0.18; // ~18% of smaller box
+      const depthThreshold = Math.max(6, minDim * 0.22);
+
+      if (overlapX >= depthThreshold && overlapY >= depthThreshold * 0.5 && area >= areaThreshold) {
         o.hit = true;
         return o;
       }

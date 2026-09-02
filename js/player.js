@@ -44,13 +44,18 @@ export class Player {
   }
 
   get hitbox() {
+    // Tight core body hitbox — ignores feet edge and outer glow
+    // so light grazes / landing near tops don't instantly kill
     const h = this.isDucking ? this.height * CONFIG.DUCK_HEIGHT_RATIO : this.height;
     const yOff = this.isDucking ? this.height - h : 0;
+    const insetX = Math.max(8, Math.floor(this.width * 0.22));
+    const insetTop = this.isDucking ? 2 : 6;
+    const insetBottom = this.isDucking ? 2 : 10; // feet zone is forgiving
     return {
-      x: this.x + 6,
-      y: this.y + yOff + 4,
-      w: this.width - 12,
-      h: h - 8
+      x: this.x + insetX,
+      y: this.y + yOff + insetTop,
+      w: this.width - insetX * 2,
+      h: Math.max(8, h - insetTop - insetBottom)
     };
   }
 
@@ -59,6 +64,7 @@ export class Player {
       this.vy = CONFIG.JUMP_FORCE;
       this.isJumping = true;
       this.onGround = false;
+      // Stay ducking flag false when jumping, but don't force stand mid-air issues
       this.isDucking = false;
       return true;
     }
@@ -67,7 +73,8 @@ export class Player {
 
   duck(active) {
     if (this.dead) return;
-    if (active && this.onGround) {
+    // Allow duck while airborne slightly (helps red-tape timing) only if pressing
+    if (active) {
       this.isDucking = true;
     } else {
       this.isDucking = false;

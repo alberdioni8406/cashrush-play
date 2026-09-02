@@ -29,8 +29,18 @@ let selectedCharId = 'cash';
 let isMobile = false;
 
 function showScreen(name) {
-  Object.values(screens).forEach(s => s.classList.remove('active'));
-  if (screens[name]) screens[name].classList.add('active');
+  // HTML data-back uses "main-menu"; internal key is "menu"
+  const key = name === 'main-menu' ? 'menu' : name;
+  Object.values(screens).forEach(s => {
+    if (s) s.classList.remove('active');
+  });
+  if (screens[key]) {
+    screens[key].classList.add('active');
+  } else {
+    // Safe fallback — never leave a blank UI
+    console.warn('Unknown screen:', name, '→ falling back to menu');
+    if (screens.menu) screens.menu.classList.add('active');
+  }
 }
 
 function showOverlay(name) {
@@ -276,7 +286,7 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
     if (!game.paused && !game.gameOver) game.jump();
-  } else if (e.code === 'ArrowDown') {
+  } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
     e.preventDefault();
     if (!game.paused && !game.gameOver) game.duck(true);
   } else if (e.code === 'KeyP' || e.code === 'Escape') {
@@ -295,7 +305,7 @@ window.addEventListener('keydown', e => {
 
 window.addEventListener('keyup', e => {
   if (!game) return;
-  if (e.code === 'ArrowDown') game.duck(false);
+  if (e.code === 'ArrowDown' || e.code === 'KeyS') game.duck(false);
 });
 
 // Touch / mobile
@@ -308,14 +318,30 @@ canvas.addEventListener('touchstart', e => {
   // Tap = jump (unless swipe)
 }, { passive: true });
 
+let duckHoldUntil = 0;
 canvas.addEventListener('touchend', e => {
   if (!game || game.paused || game.gameOver) return;
   const dy = e.changedTouches[0].clientY - touchStartY;
   if (dy > 40) {
+    // Swipe down: duck for a solid duration (not a blink)
     game.duck(true);
-    setTimeout(() => game.duck(false), 300);
-  } else {
+    duckHoldUntil = performance.now() + 650;
+    clearTimeout(window.__duckTimer);
+    window.__duckTimer = setTimeout(() => {
+      if (performance.now() >= duckHoldUntil) game.duck(false);
+    }, 650);
+  } else if (Math.abs(dy) < 25) {
     game.jump();
+  }
+}, { passive: true });
+
+// Keep ducking while finger is held after a down-swipe start
+canvas.addEventListener('touchmove', e => {
+  if (!game || game.paused || game.gameOver) return;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (dy > 50) {
+    game.duck(true);
+    duckHoldUntil = performance.now() + 200;
   }
 }, { passive: true });
 
@@ -324,13 +350,21 @@ document.getElementById('btn-jump').addEventListener('touchstart', e => {
   e.preventDefault();
   if (game && !game.paused) game.jump();
 });
-document.getElementById('btn-duck').addEventListener('touchstart', e => {
+const btnDuck = document.getElementById('btn-duck');
+function startDuck(e) {
   e.preventDefault();
-  if (game && !game.paused) {
-    game.duck(true);
-    setTimeout(() => game.duck(false), 350);
-  }
-});
+  if (game && !game.paused && !game.gameOver) game.duck(true);
+}
+function endDuck(e) {
+  e.preventDefault();
+  if (game) game.duck(false);
+}
+btnDuck.addEventListener('touchstart', startDuck, { passive: false });
+btnDuck.addEventListener('touchend', endDuck, { passive: false });
+btnDuck.addEventListener('touchcancel', endDuck, { passive: false });
+btnDuck.addEventListener('mousedown', startDuck);
+btnDuck.addEventListener('mouseup', endDuck);
+btnDuck.addEventListener('mouseleave', endDuck);
 
 // Prevent scroll
 document.body.addEventListener('touchmove', e => {
