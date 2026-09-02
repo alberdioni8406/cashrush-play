@@ -1,5 +1,6 @@
 /**
  * CASHRUSH — Local achievement system
+ * Unlocks only when specific goals are reached.
  */
 
 import { ACHIEVEMENTS } from './config.js';
@@ -7,14 +8,14 @@ import { Storage } from './storage.js';
 import { Audio } from './audio.js';
 
 export const Achievements = {
-  queue(id) {
+  unlock(id) {
     const def = ACHIEVEMENTS.find(a => a.id === id);
     if (!def) return false;
     if (Storage.hasAchievement(id)) return false;
     const unlocked = Storage.unlockAchievement(id);
     if (unlocked) {
       this.showToast(def.name);
-      Audio.achievement();
+      try { Audio.achievement(); } catch (_) {}
     }
     return unlocked;
   },
@@ -32,22 +33,26 @@ export const Achievements = {
     }, 2800);
   },
 
+  /** End-of-run checks */
   checkRun(stats) {
-    // Called at end of run or during
-    if (stats.gamesPlayed === 1) this.unlock('first_block');
-    if (stats.satsThisRun === 0 && stats.distance > 500) this.unlock('ghost_mode');
-    if (stats.maxCombo >= 8) this.unlock('combo_king');
-    if (stats.runTime >= 180) this.unlock('survivor');
+    if ((stats.gamesPlayed || 0) >= 1) this.unlock('first_block');
+    if ((stats.satsThisRun || 0) === 0 && (stats.distance || 0) >= 500) this.unlock('ghost_mode');
+    if ((stats.maxCombo || 0) >= 8) this.unlock('combo_king');
+    if ((stats.runTime || 0) >= 180) this.unlock('survivor');
+    if ((stats.sectorsCleared || 0) >= 5) this.unlock('sector_5');
+    if ((stats.sectorsCleared || 0) >= 9) this.unlock('sector_10');
   },
 
+  /** Lifetime / cumulative goals */
   checkProgress(global) {
-    if (global.totalSats >= 1000) this.unlock('sat_stacker');
-    if (global.totalPlayTime >= 600) this.unlock('still_running');
-    if (global.feeWallsJumped >= 100) this.unlock('fee_escape');
-    if (global.hashrushActivations >= 10) this.unlock('hashrush_master');
-    if (global.totalDistance >= 10000) this.unlock('distance_10k');
-    // Early runner: first 100 games ever on this device (or just unlock on first play for V1)
-    if (global.gamesPlayed <= 3) this.unlock('early_runner');
+    if ((global.totalSats || 0) >= 1000) this.unlock('sat_stacker');
+    if ((global.totalPlayTime || 0) >= 600) this.unlock('still_running');
+    if ((global.feeWallsJumped || 0) >= 100) this.unlock('fee_escape');
+    if ((global.hashrushActivations || 0) >= 10) this.unlock('hashrush_master');
+    if ((global.totalDistance || 0) >= 10000) this.unlock('distance_10k');
+    if ((global.gamesPlayed || 0) <= 3 && (global.gamesPlayed || 0) >= 1) {
+      this.unlock('early_runner');
+    }
   },
 
   getList() {

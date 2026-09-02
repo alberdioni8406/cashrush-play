@@ -22,8 +22,7 @@ const screens = {
 
 const overlays = {
   pause: document.getElementById('pause-overlay'),
-  gameover: document.getElementById('gameover-overlay'),
-  sector: document.getElementById('sector-overlay')
+  gameover: document.getElementById('gameover-overlay')
 };
 
 let game = null;
@@ -152,23 +151,6 @@ function onGameEvent(type, data) {
       go.style.display = 'flex';
     }
     updateMenuStats();
-  } else if (type === 'sector_clear') {
-    try {
-      document.getElementById('sector-cleared-name').textContent =
-        'S' + data.cleared.id + ' ' + data.cleared.name;
-      document.getElementById('sector-bonus').textContent = '+' + (data.bonus || 0);
-      document.getElementById('sector-next-name').textContent =
-        'S' + data.next.id + ' ' + data.next.name;
-      document.getElementById('sector-next-blurb').textContent = data.next.blurb || '';
-    } catch (_) {}
-    if (game) game.pause();
-    showOverlay('sector');
-    const so = document.getElementById('sector-overlay');
-    if (so) {
-      so.classList.add('active');
-      so.style.display = 'flex';
-    }
-    Audio.achievement();
   }
 }
 
@@ -202,11 +184,6 @@ document.getElementById('btn-howto-play')?.addEventListener('click', () => {
   startGame();
 });
 
-document.getElementById('btn-sector-continue')?.addEventListener('click', () => {
-  Audio.uiClick();
-  hideOverlays();
-  if (game) game.resume();
-});
 
 document.getElementById('btn-characters').addEventListener('click', () => {
   Audio.uiClick();

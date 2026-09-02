@@ -134,15 +134,18 @@ export class Game {
       this.score += bonus;
       const cleared = sector;
       this.sectorIndex = Math.min(this.sectorIndex + 1, SECTORS.length - 1);
-      this.sectorBannerTimer = 150;
-      if (this.sectorIndex >= 4) Achievements.unlock('sector_5');
-      if (this.sectorIndex >= 9) Achievements.unlock('sector_10');
-      this.onEvent('sector_clear', {
-        cleared,
-        next: this.currentSector(),
-        bonus,
-        sectorsCleared: this.sectorsCleared
-      });
+      // Brief on-canvas banner only — never pause the run
+      this.sectorBannerTimer = 120;
+      this.sectorFlash = {
+        title: 'SECTOR ' + cleared.id + ' CLEARED',
+        sub: '+' + bonus + '  →  ' + this.currentSector().name,
+        timer: 120
+      };
+      if (this.sectorsCleared >= 5) Achievements.unlock('sector_5');
+      if (this.sectorsCleared >= 9) Achievements.unlock('sector_10');
+      // Live goal-based achievements mid-run
+      if (this.maxCombo >= 8) Achievements.unlock('combo_king');
+      if (this.runTime >= 180) Achievements.unlock('survivor');
     }
   }
 
@@ -205,6 +208,9 @@ export class Game {
 
     if (this.sectorBannerTimer > 0) this.sectorBannerTimer -= dt;
     this.checkSectorProgress();
+    // Goal-based achievements while running
+    if (this.maxCombo >= 8) Achievements.unlock('combo_king');
+    if (this.runTime >= 180) Achievements.unlock('survivor');
 
     // Parallax
     CONFIG.PARALLAX.forEach((p, i) => {
@@ -350,7 +356,8 @@ export class Game {
         satsThisRun: this.satsThisRun,
         distance: this.distance,
         maxCombo: this.maxCombo,
-        runTime: this.runTime
+        runTime: this.runTime,
+        sectorsCleared: this.sectorsCleared || 0
       });
       Achievements.checkProgress({
         totalSats: data.totalSats,
@@ -522,23 +529,48 @@ export class Game {
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
-    // Sector intro / clear banner
-    if (this.sectorBannerTimer > 0) {
-      const sector = this.currentSector();
-      const alpha = Math.min(1, this.sectorBannerTimer / 40);
+    // Non-blocking sector banner (game keeps running)
+    const flash = this.sectorFlash;
+    if (flash && flash.timer > 0) {
+      flash.timer -= 1;
+      const alpha = Math.min(1, flash.timer / 30);
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = 'rgba(0, 20, 0, 0.75)';
-      ctx.fillRect(w * 0.15, h * 0.28, w * 0.7, 70);
+      const bw = Math.min(420, w * 0.75);
+      const bx = (w - bw) / 2;
+      const by = h * 0.14;
+      ctx.fillStyle = 'rgba(0, 25, 0, 0.82)';
+      ctx.fillRect(bx, by, bw, 54);
       ctx.strokeStyle = CONFIG.COLORS.green;
       ctx.lineWidth = 2;
-      ctx.strokeRect(w * 0.15, h * 0.28, w * 0.7, 70);
+      ctx.strokeRect(bx, by, bw, 54);
       ctx.fillStyle = CONFIG.COLORS.green;
-      ctx.font = 'bold 18px monospace';
+      ctx.font = 'bold 15px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('SECTOR ' + sector.id + ' — ' + sector.name, w / 2, h * 0.28 + 30);
-      ctx.fillStyle = CONFIG.COLORS.greenDim;
+      ctx.fillText(flash.title, w / 2, by + 22);
+      ctx.fillStyle = CONFIG.COLORS.gold || '#ffd700';
       ctx.font = '12px monospace';
-      ctx.fillText(sector.blurb, w / 2, h * 0.28 + 52);
+      ctx.fillText(flash.sub, w / 2, by + 42);
+      ctx.globalAlpha = 1;
+    } else if (this.sectorBannerTimer > 0) {
+      // Opening sector label
+      const sector = this.currentSector();
+      const alpha = Math.min(1, this.sectorBannerTimer / 40);
+      ctx.globalAlpha = alpha * 0.95;
+      const bw = Math.min(420, w * 0.75);
+      const bx = (w - bw) / 2;
+      const by = h * 0.14;
+      ctx.fillStyle = 'rgba(0, 20, 0, 0.75)';
+      ctx.fillRect(bx, by, bw, 54);
+      ctx.strokeStyle = CONFIG.COLORS.greenDim;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(bx, by, bw, 54);
+      ctx.fillStyle = CONFIG.COLORS.green;
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SECTOR ' + sector.id + ' — ' + sector.name, w / 2, by + 22);
+      ctx.fillStyle = CONFIG.COLORS.greenDim;
+      ctx.font = '11px monospace';
+      ctx.fillText(sector.blurb, w / 2, by + 42);
       ctx.globalAlpha = 1;
     }
   }
