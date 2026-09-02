@@ -2,7 +2,7 @@
  * CASHRUSH — Core game loop & world
  */
 
-import { CONFIG } from './config.js';
+import { CONFIG, SECTORS } from './config.js';
 import { Player } from './player.js';
 import { ObstacleManager } from './obstacles.js';
 import { CollectibleManager } from './collectibles.js';
@@ -62,9 +62,9 @@ export class Game {
     this.w = w;
     this.h = h;
     this.groundY = h * CONFIG.GROUND_Y_RATIO;
-    // Responsive world scale: larger on desktop, still readable on mobile
-    const raw = h / (CONFIG.DESIGN_HEIGHT || 480);
-    this.worldScale = Math.min(CONFIG.SCALE_MAX || 2.2, Math.max(CONFIG.SCALE_MIN || 1, raw));
+    // Mild scale — keeps jump physics consistent on PC/tablet/mobile
+    const raw = h / (CONFIG.DESIGN_HEIGHT || 700);
+    this.worldScale = Math.min(CONFIG.SCALE_MAX || 1.35, Math.max(CONFIG.SCALE_MIN || 0.95, raw));
     if (this.player) {
       this.applyPlayerScale();
       this.player.x = w * CONFIG.PLAYER_X_RATIO;
@@ -76,6 +76,9 @@ export class Game {
     const s = this.worldScale || 1;
     this.player.width = Math.round(CONFIG.PLAYER_WIDTH * s);
     this.player.height = Math.round(CONFIG.PLAYER_HEIGHT * s);
+    // Scale jump/gravity so arc height matches obstacle scale
+    this.player.jumpForce = CONFIG.JUMP_FORCE * Math.sqrt(s);
+    this.player.gravity = CONFIG.GRAVITY * s;
   }
 
   start(charId) {
@@ -107,11 +110,40 @@ export class Game {
     this.gameOver = false;
     this.paused = false;
     this.running = true;
+    this.sectorIndex = 0;
+    this.sectorsCleared = 0;
+    this.sectorBannerTimer = 180;
     this.lastTime = performance.now();
 
     Audio.startMusic();
     this.loop(this.lastTime);
     this.updateHUD();
+    this.onEvent('sector', this.currentSector());
+  }
+
+  currentSector() {
+    return SECTORS[Math.min(this.sectorIndex, SECTORS.length - 1)];
+  }
+
+  checkSectorProgress() {
+    const sector = this.currentSector();
+    if (!sector || sector.id >= 10) return;
+    if (this.distance >= sector.goalDistance) {
+      this.sectorsCleared++;
+      const bonus = 500 + this.sectorIndex * 350;
+      this.score += bonus;
+      const cleared = sector;
+      this.sectorIndex = Math.min(this.sectorIndex + 1, SECTORS.length - 1);
+      this.sectorBannerTimer = 150;
+      if (this.sectorIndex >= 4) Achievements.unlock('sector_5');
+      if (this.sectorIndex >= 9) Achievements.unlock('sector_10');
+      this.onEvent('sector_clear', {
+        cleared,
+        next: this.currentSector(),
+        bonus,
+        sectorsCleared: this.sectorsCleared
+      });
+    }
   }
 
   stop() {
@@ -168,15 +200,18 @@ export class Game {
     if (this.player.speedBoost) effectiveSpeed *= CONFIG.SPEED_BOOST_MULT;
     if (this.player.hashrush) effectiveSpeed *= 1.15;
 
-    this.distance += effectiveSpeed * 0.15 * dt;
+    this.distance += effectiveSpeed * 0.18 * dt;
     this.score += effectiveSpeed * CONFIG.DISTANCE_SCORE_RATE * this.combo * this.multiplier * dt;
+
+    if (this.sectorBannerTimer > 0) this.sectorBannerTimer -= dt;
+    this.checkSectorProgress();
 
     // Parallax
     CONFIG.PARALLAX.forEach((p, i) => {
       this.parallax[i] = (this.parallax[i] + effectiveSpeed * p * dt) % this.w;
     });
 
-    this.player.update(dt, this.groundY, effectiveSpeed);
+    this.player.update(dt, this.groundY);
     this.obstacles.setScale(this.worldScale || 1);
     this.obstacles.update(dt, effectiveSpeed, this.groundY, this.w, this.score);
     this.collectibles.setScale?.(this.worldScale || 1);
@@ -336,7 +371,8 @@ export class Game {
         distance: Math.floor(this.distance),
         sats: this.sats,
         maxCombo: this.maxCombo,
-        isNewHigh
+        isNewHigh,
+        sectorsCleared: this.sectorsCleared || 0
       });
     } catch (err) {
       console.warn('gameover UI event failed', err);
@@ -366,6 +402,18 @@ export class Game {
     if (el('hud-sats')) el('hud-sats').textContent = this.sats.toLocaleString();
     if (el('hud-distance')) el('hud-distance').textContent = Math.floor(this.distance) + 'm';
     if (el('hud-combo')) el('hud-combo').textContent = 'x' + this.combo.toFixed(1);
+    const sector = this.currentSector();
+    if (el('hud-sector') && sector) {
+      el('hud-sector').textContent = 'S' + sector.id;
+    }
+    if (el('hud-goal') && sector) {
+      if (sector.id >= 10) {
+        el('hud-goal').textContent = '∞';
+      } else {
+        const left = Math.max(0, Math.ceil(sector.goalDistance - this.distance));
+        el('hud-goal').textContent = left + 'm';
+      }
+    }
   }
 
   updateAbilityUI() {
@@ -473,6 +521,26 @@ export class Game {
     grad.addColorStop(1, 'rgba(0,0,0,0.35)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
+
+    // Sector intro / clear banner
+    if (this.sectorBannerTimer > 0) {
+      const sector = this.currentSector();
+      const alpha = Math.min(1, this.sectorBannerTimer / 40);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = 'rgba(0, 20, 0, 0.75)';
+      ctx.fillRect(w * 0.15, h * 0.28, w * 0.7, 70);
+      ctx.strokeStyle = CONFIG.COLORS.green;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(w * 0.15, h * 0.28, w * 0.7, 70);
+      ctx.fillStyle = CONFIG.COLORS.green;
+      ctx.font = 'bold 18px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('SECTOR ' + sector.id + ' — ' + sector.name, w / 2, h * 0.28 + 30);
+      ctx.fillStyle = CONFIG.COLORS.greenDim;
+      ctx.font = '12px monospace';
+      ctx.fillText(sector.blurb, w / 2, h * 0.28 + 52);
+      ctx.globalAlpha = 1;
+    }
   }
 
   drawParallax(ctx, w, h, gy) {

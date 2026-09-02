@@ -13,6 +13,7 @@ import { CONFIG } from './config.js';
 const screens = {
   loading: document.getElementById('loading-screen'),
   menu: document.getElementById('main-menu'),
+  howto: document.getElementById('howto-screen'),
   characters: document.getElementById('character-screen'),
   achievements: document.getElementById('achievements-screen'),
   settings: document.getElementById('settings-screen'),
@@ -21,7 +22,8 @@ const screens = {
 
 const overlays = {
   pause: document.getElementById('pause-overlay'),
-  gameover: document.getElementById('gameover-overlay')
+  gameover: document.getElementById('gameover-overlay'),
+  sector: document.getElementById('sector-overlay')
 };
 
 let game = null;
@@ -138,17 +140,35 @@ function onGameEvent(type, data) {
       document.getElementById('go-distance').textContent = (data.distance || 0) + 'm';
       document.getElementById('go-sats').textContent = (data.sats || 0).toLocaleString();
       document.getElementById('go-combo').textContent = 'x' + (data.maxCombo || 1).toFixed(1);
+      const secEl = document.getElementById('go-sectors');
+      if (secEl) secEl.textContent = String(data.sectorsCleared || 0);
       const highEl = document.getElementById('go-new-high');
       if (highEl) highEl.style.display = data.isNewHigh ? 'flex' : 'none';
     } catch (_) {}
     showOverlay('gameover');
-    // Force visibility in case of stacking/CSS race
     const go = document.getElementById('gameover-overlay');
     if (go) {
       go.classList.add('active');
       go.style.display = 'flex';
     }
     updateMenuStats();
+  } else if (type === 'sector_clear') {
+    try {
+      document.getElementById('sector-cleared-name').textContent =
+        'S' + data.cleared.id + ' ' + data.cleared.name;
+      document.getElementById('sector-bonus').textContent = '+' + (data.bonus || 0);
+      document.getElementById('sector-next-name').textContent =
+        'S' + data.next.id + ' ' + data.next.name;
+      document.getElementById('sector-next-blurb').textContent = data.next.blurb || '';
+    } catch (_) {}
+    if (game) game.pause();
+    showOverlay('sector');
+    const so = document.getElementById('sector-overlay');
+    if (so) {
+      so.classList.add('active');
+      so.style.display = 'flex';
+    }
+    Audio.achievement();
   }
 }
 
@@ -170,6 +190,22 @@ function startGame() {
 document.getElementById('btn-play').addEventListener('click', () => {
   Audio.uiClick();
   startGame();
+});
+
+document.getElementById('btn-howto')?.addEventListener('click', () => {
+  Audio.uiClick();
+  showScreen('howto');
+});
+
+document.getElementById('btn-howto-play')?.addEventListener('click', () => {
+  Audio.uiClick();
+  startGame();
+});
+
+document.getElementById('btn-sector-continue')?.addEventListener('click', () => {
+  Audio.uiClick();
+  hideOverlays();
+  if (game) game.resume();
 });
 
 document.getElementById('btn-characters').addEventListener('click', () => {

@@ -4,25 +4,26 @@
 
 import { CONFIG } from './config.js';
 
+// Heights tuned so a normal jump always clears them (even at max worldScale)
 const TYPES = {
   feeWall: {
-    w: 36, h: 70, color: '#ff3366',
+    w: 30, h: 52, color: '#ff3366',
     label: 'FEE', needsJump: true, needsDuck: false
   },
   mempoolMonster: {
-    w: 48, h: 44, color: '#ff6d00',
+    w: 42, h: 36, color: '#ff6d00',
     label: 'MPOOL', needsJump: true, needsDuck: false, moves: true
   },
   centralizer: {
-    w: 56, h: 84, color: '#d500f9',
+    w: 44, h: 58, color: '#d500f9',
     label: 'CTRL', needsJump: true, needsDuck: false, complex: true
   },
   brokenBlock: {
-    w: 40, h: 40, color: '#ffaa00',
+    w: 34, h: 34, color: '#ffaa00',
     label: 'BLK', needsJump: true, needsDuck: false, falls: true
   },
   redTape: {
-    w: 72, h: 22, color: '#ff1744',
+    w: 64, h: 18, color: '#ff1744',
     label: 'TAPE', needsJump: false, needsDuck: true, slows: true
   }
 };
@@ -30,7 +31,8 @@ const TYPES = {
 export class Obstacle {
   constructor(type, x, groundY, scale = 1) {
     const t = TYPES[type] || TYPES.feeWall;
-    const s = scale || 1;
+    // Soft-cap obstacle scale so desktop never makes walls unjumpable
+    const s = Math.min(1.25, scale || 1);
     this.type = type;
     this.x = x;
     this.w = Math.round(t.w * s);

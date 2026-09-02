@@ -79,7 +79,7 @@ export class PowerUpManager {
   }
 
   setScale(s) {
-    this.scale = s || 1;
+    this.scale = Math.min(1.25, s || 1);
   }
 
   update(dt, speed, groundY, canvasW) {
