@@ -140,16 +140,211 @@ export const CHARACTERS = {
 };
 
 export const ACHIEVEMENTS = [
-  { id: 'first_block', name: 'First Block', desc: 'Play your first game', icon: '▶' },
-  { id: 'sat_stacker', name: 'Sat Stacker', desc: 'Collect 1,000 virtual sats', icon: '₿', target: 1000 },
-  { id: 'still_running', name: 'Still Running', desc: 'Survive for 10 minutes total', icon: '⏱', target: 600 },
-  { id: 'fee_escape', name: 'Fee Escape', desc: 'Jump over 100 Fee Walls', icon: '⬆', target: 100 },
-  { id: 'ghost_mode', name: 'Ghost Mode', desc: 'Complete a run without collecting anything', icon: '👻' },
-  { id: 'hashrush_master', name: 'HashRush', desc: 'Activate HashRush 10 times', icon: '⚡', target: 10 },
-  { id: 'early_runner', name: 'Early Runner', desc: 'One of the first to enter The Grid', icon: '★' },
-  { id: 'combo_king', name: 'Combo King', desc: 'Reach x8 combo multiplier', icon: '🔥' },
-  { id: 'distance_10k', name: 'Grid Explorer', desc: 'Travel 10,000 meters total', icon: '→', target: 10000 },
-  { id: 'survivor', name: 'Survivor', desc: 'Survive 3 minutes in a single run', icon: '🛡' },
-  { id: 'sector_5', name: 'Core Runner', desc: 'Reach Sector 5 in a single run', icon: '⬡' },
-  { id: 'sector_10', name: 'Grid Legend', desc: 'Reach the Infinite Grid', icon: '∞' }
+  {
+    id: 'first_rush',
+    name: 'FIRST RUSH',
+    icon: '▶',
+    desc: 'Your first run is complete. Welcome to the Grid.',
+    requirement: 'Complete the first game run',
+    secret: false,
+    type: 'runs',
+    target: 1,
+    discovery: {
+      title: 'What is CASHRUSH?',
+      body: 'CASHRUSH is a browser game inspired by Bitcoin Cash. You run, collect, survive and discover.\n\nIt is designed to be playable without a wallet, account, or any cryptocurrency knowledge. Just hit PLAY.'
+    }
+  },
+  {
+    id: 'sat_runner',
+    name: 'SAT RUNNER',
+    icon: '₿',
+    desc: "You've collected 1,000 sats.",
+    requirement: 'Collect 1,000 in-game sats (lifetime)',
+    secret: false,
+    type: 'sats',
+    target: 1000,
+    discovery: {
+      title: 'What are sats?',
+      body: 'A sat (satoshi) is a small unit of Bitcoin and Bitcoin Cash.\n\n1 BCH = 100,000,000 sats.\n\nSats let networks represent very small amounts of value.\n\nImportant: sats collected in CASHRUSH are gameplay points only. They have no monetary value and are not real BCH.'
+    }
+  },
+  {
+    id: 'stacking_up',
+    name: 'STACKING UP',
+    icon: '◆',
+    desc: '10,000 sats collected.',
+    requirement: 'Collect 10,000 in-game sats (lifetime)',
+    secret: false,
+    type: 'sats',
+    target: 10000,
+    discovery: {
+      title: 'Why use small units?',
+      body: 'Digital cash works better when you can send tiny amounts as easily as large ones.\n\nSmall units make micropayments practical — tips, content, or machine-to-machine value — without rounding everything to whole coins.'
+    }
+  },
+  {
+    id: 'block_builder',
+    name: 'BLOCK BUILDER',
+    icon: '▣',
+    desc: "You've reached Sector 3.",
+    requirement: 'Reach Sector 3 in a single run',
+    secret: false,
+    type: 'sector',
+    target: 3,
+    discovery: {
+      title: 'What is a blockchain?',
+      body: 'Transactions are grouped into blocks. Blocks are linked into a shared history that the network maintains together.\n\nThink of it as a public notebook where each page is sealed to the last — hard to rewrite, easy to verify.'
+    }
+  },
+  {
+    id: 'network_runner',
+    name: 'NETWORK RUNNER',
+    icon: '⬡',
+    desc: "You've reached Sector 5.",
+    requirement: 'Reach Sector 5 in a single run',
+    secret: false,
+    type: 'sector',
+    target: 5,
+    discovery: {
+      title: 'How does a blockchain network work?',
+      body: 'Many independent computers (nodes) help maintain and verify the network.\n\nThere is not simply one company or one server in charge. Agreement emerges from participants following shared rules.'
+    }
+  },
+  {
+    id: 'decentralized',
+    name: 'DECENTRALIZED',
+    icon: '◎',
+    desc: '5,000 meters survived.',
+    requirement: 'Survive 5,000 meters in a single run',
+    secret: false,
+    type: 'distance_run',
+    target: 5000,
+    discovery: {
+      title: 'Why decentralization?',
+      body: 'Decentralized networks avoid depending on a single authority or central point of control.\n\nIn CASHRUSH you already met the CENTRALIZER obstacle — a reminder of what concentrated control can feel like. Real networks aim to keep power spread out.'
+    }
+  },
+  {
+    id: 'cash_is_king',
+    name: 'CASH IS KING',
+    icon: '♛',
+    desc: "You've stacked 25,000 sats.",
+    requirement: 'Collect 25,000 in-game sats (lifetime)',
+    secret: false,
+    type: 'sats',
+    target: 25000,
+    discovery: {
+      title: 'What is Bitcoin Cash?',
+      body: 'Bitcoin Cash (BCH) is a decentralized peer-to-peer electronic cash network. People can send value directly to one another.\n\nBCH focuses on making digital payments practical, fast, and inexpensive.'
+    }
+  },
+  {
+    id: 'your_keys',
+    name: 'YOUR KEYS',
+    icon: '🔑',
+    desc: "You've completed 10 runs.",
+    requirement: 'Complete 10 game runs',
+    secret: false,
+    type: 'runs',
+    target: 10,
+    discovery: {
+      title: 'What is self-custody?',
+      body: 'Self-custody means you control your own cryptocurrency instead of relying entirely on a centralized service.\n\nThis is an educational concept only. CASHRUSH never asks you to create a wallet or move funds.'
+    }
+  },
+  {
+    id: 'cash_wallet',
+    name: 'CASH WALLET',
+    icon: '▣',
+    desc: "You've reached Sector 7.",
+    requirement: 'Reach Sector 7 in a single run',
+    secret: false,
+    type: 'sector',
+    target: 7,
+    discovery: {
+      title: 'What is a BCH wallet?',
+      body: 'A BCH wallet is software or hardware that lets people receive and send Bitcoin Cash.\n\nYou do not need a BCH wallet to play CASHRUSH. This is educational information only.',
+      links: [
+        { label: 'Learn more about BCH', url: 'https://bitcoincash.org' }
+      ]
+    }
+  },
+  {
+    id: 'token_discovery',
+    name: 'TOKEN DISCOVERY',
+    icon: '✦',
+    desc: "You've discovered something new in the Grid.",
+    requirement: 'Collect a Legendary Token Orb',
+    secret: false,
+    type: 'legendary_orb',
+    target: 1,
+    discovery: {
+      title: 'What are CashTokens?',
+      body: 'CashTokens are token features built into the Bitcoin Cash ecosystem. They can represent digital assets, collectibles, and other tokenized uses.\n\nCASHRUSH in-game orbs are NOT CashTokens and are not on-chain assets. They are virtual collectibles only.'
+    }
+  },
+  {
+    id: 'grid_master',
+    name: 'GRID MASTER',
+    icon: '∞',
+    desc: "You've reached the Infinite Grid.",
+    requirement: 'Reach Sector 10 — Infinite Grid',
+    secret: false,
+    type: 'sector',
+    target: 10,
+    discovery: {
+      title: 'What does peer-to-peer mean?',
+      body: 'Peer-to-peer means people can interact or transact directly with each other without a central intermediary.\n\nThat idea sits at the heart of Bitcoin Cash: value moving from person to person across an open network.'
+    }
+  },
+  {
+    id: 'cashrush_legend',
+    name: 'CASHRUSH LEGEND',
+    icon: '★',
+    desc: "You've explored the Grid.",
+    requirement: 'Unlock at least 10 of the other main achievements',
+    secret: false,
+    type: 'legend',
+    target: 10,
+    discovery: {
+      title: 'Explore the BCH ecosystem',
+      body: 'CASHRUSH is one small project in a much larger Bitcoin Cash ecosystem.\n\nIf you want to look further, these are optional doorways — not requirements.',
+      links: [
+        { label: 'Bitcoin Cash', url: 'https://bitcoincash.org' },
+        { label: 'CashTokens', url: 'https://cashtokens.org' },
+        { label: 'BCH developer resources', url: 'https://documentation.cash' }
+      ]
+    }
+  },
+  // Secret achievements — conditions hidden until unlocked
+  {
+    id: 'fee_wall_survivor',
+    name: 'FEE WALL SURVIVOR',
+    icon: '🛡',
+    desc: 'Cleared 50 Fee Walls in a single run.',
+    requirement: 'SECRET',
+    secret: true,
+    type: 'fee_walls_run',
+    target: 50
+  },
+  {
+    id: 'perfect_run',
+    name: 'PERFECT RUN',
+    icon: '◇',
+    desc: 'Finished a run of 800m+ without taking damage.',
+    requirement: 'SECRET',
+    secret: true,
+    type: 'perfect_run',
+    target: 800
+  },
+  {
+    id: 'grid_hunter',
+    name: 'GRID HUNTER',
+    icon: '⚡',
+    desc: 'Activated HashRush 3 times in one run.',
+    requirement: 'SECRET',
+    secret: true,
+    type: 'hashrush_run',
+    target: 3
+  }
 ];

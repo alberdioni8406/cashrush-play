@@ -112,6 +112,7 @@ export class Game {
     this.running = true;
     this.sectorIndex = 0;
     this.sectorsCleared = 0;
+    this.tookDamage = false;
     this.sectorBannerTimer = 180;
     this.lastTime = performance.now();
 
@@ -141,11 +142,7 @@ export class Game {
         sub: '+' + bonus + '  →  ' + this.currentSector().name,
         timer: 120
       };
-      if (this.sectorsCleared >= 5) Achievements.unlock('sector_5');
-      if (this.sectorsCleared >= 9) Achievements.unlock('sector_10');
-      // Live goal-based achievements mid-run
-      if (this.maxCombo >= 8) Achievements.unlock('combo_king');
-      if (this.runTime >= 180) Achievements.unlock('survivor');
+      // Achievements evaluated via checkLive / checkRun
     }
   }
 
@@ -208,9 +205,15 @@ export class Game {
 
     if (this.sectorBannerTimer > 0) this.sectorBannerTimer -= dt;
     this.checkSectorProgress();
-    // Goal-based achievements while running
-    if (this.maxCombo >= 8) Achievements.unlock('combo_king');
-    if (this.runTime >= 180) Achievements.unlock('survivor');
+    // Non-blocking goal checks while running
+    try {
+      Achievements.checkLive({
+        distance: this.distance,
+        sectorReached: (this.sectorIndex || 0) + 1,
+        feeWallsJumped: this.feeWallsJumped,
+        hashrushCount: this.hashrushCount
+      });
+    } catch (_) {}
 
     // Parallax
     CONFIG.PARALLAX.forEach((p, i) => {
@@ -265,6 +268,7 @@ export class Game {
         // will count on successful pass instead
       }
       const fatal = this.player.takeHit();
+      this.tookDamage = true;
       if (fatal) {
         this.endGame();
       } else {
@@ -323,6 +327,9 @@ export class Game {
       value = (CONFIG.TOKEN_ORB_VALUES[c.rarity] || 50) * this.combo * this.multiplier;
       Audio.collectOrb(c.rarity);
       this.spawnParticles(c.x, c.y, CONFIG.COLORS.purple, 10);
+      if (c.rarity === 'legendary') {
+        try { Achievements.recordLegendaryOrb(); } catch (_) {}
+      }
     }
 
     this.score += value;
@@ -357,7 +364,11 @@ export class Game {
         distance: this.distance,
         maxCombo: this.maxCombo,
         runTime: this.runTime,
-        sectorsCleared: this.sectorsCleared || 0
+        sectorsCleared: this.sectorsCleared || 0,
+        sectorReached: (this.sectorIndex || 0) + 1,
+        feeWallsJumped: this.feeWallsJumped || 0,
+        hashrushCount: this.hashrushCount || 0,
+        tookDamage: !!this.tookDamage
       });
       Achievements.checkProgress({
         totalSats: data.totalSats,
