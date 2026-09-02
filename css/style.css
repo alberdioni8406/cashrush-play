@@ -841,3 +841,59 @@ html, body {
 .donate-overlay-content .menu-btn {
   margin-bottom: 0.6rem;
 }
+
+/* How to Play */
+.howto-content {
+  padding: 4rem 1.25rem 2rem;
+  width: 100%;
+  max-width: 440px;
+  overflow-y: auto;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.howto-block {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0, 168, 84, 0.3);
+  background: rgba(0, 15, 0, 0.5);
+}
+
+.howto-block h3 {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--green);
+  margin-bottom: 0.4rem;
+}
+
+.howto-block p {
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  line-height: 1.45;
+  margin-bottom: 0.25rem;
+}
+
+.howto-block strong {
+  color: var(--white);
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid;
+  margin-right: 0.2rem;
+}
+
+.tag.danger { color: var(--danger); border-color: var(--danger); }
+.tag.warning { color: var(--warning); border-color: var(--warning); }
+.tag.green { color: var(--green); border-color: var(--green); }
+.tag.gold { color: var(--gold, #ffd700); border-color: var(--gold, #ffd700); }
+.tag.cyan { color: var(--cyan); border-color: var(--cyan); }
+
+#btn-howto-play {
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
