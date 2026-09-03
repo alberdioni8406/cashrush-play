@@ -17,7 +17,19 @@ const DEFAULTS = {
     feeWallsJumped: 0,
     hashrushActivations: 0,
     gamesPlayed: 0,
-    maxCombo: 0
+    maxCombo: 0,
+    maxSector: 0,
+    maxDistanceRun: 0,
+    legendaryOrbs: 0,
+    orbsCollected: 0
+  },
+  daily: {
+    lastVisit: null,
+    streak: 0,
+    longestStreak: 0,
+    completedDates: {},
+    dailyRunsCompleted: 0,
+    bestProgress: {}
   },
   settings: {
     sfx: true,
@@ -25,7 +37,7 @@ const DEFAULTS = {
     mobileControls: false,
     reducedMotion: false
   },
-  version: 1
+  version: 2
 };
 
 function safeParse(raw) {
@@ -43,6 +55,9 @@ function mergeDefaults(data) {
   merged.settings = { ...DEFAULTS.settings, ...(data.settings || {}) };
   merged.stats = { ...DEFAULTS.stats, ...(data.stats || {}) };
   merged.achievements = { ...DEFAULTS.achievements, ...(data.achievements || {}) };
+  merged.daily = { ...DEFAULTS.daily, ...(data.daily || {}) };
+  merged.daily.completedDates = { ...(DEFAULTS.daily.completedDates), ...((data.daily || {}).completedDates || {}) };
+  merged.daily.bestProgress = { ...(DEFAULTS.daily.bestProgress), ...((data.daily || {}).bestProgress || {}) };
   if (!Array.isArray(merged.unlockedCharacters)) {
     merged.unlockedCharacters = ['cash'];
   }

@@ -136,10 +136,14 @@ export class CollectibleManager {
     this.scale = Math.min(1.25, s || 1);
   }
 
+  setMods(mods = {}) {
+    this.chanceMult = mods.collectibleChance ? (mods.collectibleChance / 0.55) : 1;
+  }
+
   update(dt, speed, player, groundY, canvasW) {
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      if (Math.random() < CONFIG.COLLECTIBLE_SPAWN_CHANCE) {
+      if (Math.random() < CONFIG.COLLECTIBLE_SPAWN_CHANCE * (this.chanceMult || 1)) {
         this.spawn(groundY, canvasW);
       }
       this.spawnTimer = 25 + Math.random() * 35;

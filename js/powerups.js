@@ -82,10 +82,14 @@ export class PowerUpManager {
     this.scale = Math.min(1.25, s || 1);
   }
 
+  setMods(mods = {}) {
+    this.chanceMult = mods.powerupChance ? (mods.powerupChance / 0.12) : 1;
+  }
+
   update(dt, speed, groundY, canvasW) {
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      if (Math.random() < CONFIG.POWERUP_SPAWN_CHANCE) {
+      if (Math.random() < CONFIG.POWERUP_SPAWN_CHANCE * (this.chanceMult || 1)) {
         this.spawn(groundY, canvasW);
       }
       this.spawnTimer = 140 + Math.random() * 120;

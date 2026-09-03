@@ -7,6 +7,7 @@ import { Storage } from './storage.js';
 import { Audio } from './audio.js';
 import { Characters } from './characters.js';
 import { Achievements } from './achievements.js';
+import { DailyGrid } from './daily.js';
 import { CONFIG } from './config.js';
 
 // Screens
@@ -14,6 +15,7 @@ const screens = {
   loading: document.getElementById('loading-screen'),
   menu: document.getElementById('main-menu'),
   howto: document.getElementById('howto-screen'),
+  journey: document.getElementById('journey-screen'),
   characters: document.getElementById('character-screen'),
   achievements: document.getElementById('achievements-screen'),
   settings: document.getElementById('settings-screen'),
@@ -108,6 +110,75 @@ function updateMenuStats() {
   const data = Storage.data;
   document.getElementById('menu-highscore').textContent = (data.highScore || 0).toLocaleString();
   document.getElementById('menu-totalsats').textContent = (data.totalSats || 0).toLocaleString();
+  try {
+    const st = DailyGrid.recordVisit();
+    renderDailyPanel(st);
+    const streakEl = document.getElementById('menu-streak');
+    if (streakEl) streakEl.textContent = String(st.streak || 0);
+  } catch (e) {
+    console.warn('daily panel', e);
+  }
+}
+
+function renderDailyPanel(st) {
+  if (!st) st = DailyGrid.getStatus();
+  const panel = document.getElementById('daily-panel');
+  if (!panel) return;
+  const ch = st.challenge;
+  const best = DailyGrid.getBestProgress();
+  const target = ch.target || 1;
+  const pct = Math.min(100, Math.floor((best / target) * 100));
+  const eventLine = document.getElementById('daily-event-line');
+  if (eventLine) {
+    eventLine.textContent = st.event && st.event.name
+      ? (st.event.name + ' — ' + st.event.blurb)
+      : '';
+  }
+  const title = document.getElementById('daily-challenge-title');
+  if (title) title.textContent = ch.title + (st.completed ? ' ✓' : '');
+  const desc = document.getElementById('daily-challenge-desc');
+  if (desc) desc.textContent = ch.desc;
+  const pt = document.getElementById('daily-progress-text');
+  if (pt) pt.textContent = st.completed ? ('DONE — ' + target + ' / ' + target) : (best + ' / ' + target);
+  const fill = document.getElementById('daily-bar-fill');
+  if (fill) fill.style.width = (st.completed ? 100 : pct) + '%';
+  const streak = document.getElementById('daily-streak-line');
+  if (streak) {
+    streak.textContent = st.streak > 0
+      ? ('🔥 ' + st.streak + ' day' + (st.streak === 1 ? '' : 's') + ' — ' + st.streakLine)
+      : st.streakLine;
+  }
+  panel.classList.toggle('completed', !!st.completed);
+  const btn = document.getElementById('btn-daily-run');
+  if (btn) {
+    btn.textContent = st.completed ? 'PLAY AGAIN' : 'PLAY DAILY RUN';
+  }
+}
+
+function renderJourney() {
+  const data = Storage.data || {};
+  const stats = data.stats || {};
+  const daily = data.daily || {};
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('j-runs', String(stats.gamesPlayed || 0));
+  set('j-distance', Math.floor(data.totalDistance || 0).toLocaleString() + 'm');
+  set('j-sats', (data.totalSats || 0).toLocaleString());
+  set('j-high', (data.highScore || 0).toLocaleString());
+  const achCount = Object.keys(data.achievements || {}).length;
+  set('j-achs', String(achCount));
+  set('j-daily', String(daily.dailyRunsCompleted || 0));
+  set('j-streak', String(daily.streak || 0));
+  set('j-best-streak', String(daily.longestStreak || 0));
+  set('j-sector', String(stats.maxSector || 1));
+  try {
+    const disc = DailyGrid.getDiscovery();
+    const box = document.getElementById('journey-discovery');
+    if (box && disc) {
+      box.classList.remove('hidden');
+      document.getElementById('journey-disc-title').textContent = disc.title;
+      document.getElementById('journey-disc-body').textContent = disc.body;
+    }
+  } catch (_) {}
 }
 
 function applySettings() {
@@ -150,11 +221,52 @@ function onGameEvent(type, data) {
       go.classList.add('active');
       go.style.display = 'flex';
     }
+    // Daily Grid evaluation (non-blocking)
+    try {
+      const result = DailyGrid.evaluateRun({
+        sats: data.sats || 0,
+        distance: data.distance || 0,
+        score: data.score || 0,
+        combo: data.maxCombo || 1,
+        sector: data.sectorReached || data.sectorsCleared || 0,
+        orbs: data.orbs || 0,
+        feeWalls: data.feeWallsJumped || 0,
+        runTimeSec: data.runTime || 0
+      }, !!data.isDailyRun);
+      DailyGrid.updateBestProgress({
+        sats: data.sats || 0,
+        distance: data.distance || 0,
+        score: data.score || 0,
+        combo: data.maxCombo || 1,
+        sector: data.sectorReached || 0,
+        orbs: data.orbs || 0,
+        feeWalls: data.feeWallsJumped || 0,
+        runTimeSec: data.runTime || 0
+      });
+      if (result && result.firstTime) {
+        // Soft toast via existing achievement toast chrome
+        const toast = document.getElementById('achievement-toast');
+        const nameEl = document.getElementById('toast-name');
+        const titleEl = toast?.querySelector('.toast-title');
+        if (toast && nameEl) {
+          if (titleEl) titleEl.textContent = 'DAILY RUN COMPLETE';
+          nameEl.textContent = result.challenge.title;
+          toast.classList.remove('hidden');
+          requestAnimationFrame(() => toast.classList.add('show'));
+          setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.classList.add('hidden'), 350);
+          }, 3200);
+        }
+      }
+    } catch (e) {
+      console.warn('daily eval', e);
+    }
     updateMenuStats();
   }
 }
 
-function startGame() {
+function startGame(opts = {}) {
   selectedCharId = Storage.get('selectedCharacter') || 'cash';
   hideOverlays();
   showScreen('game');
@@ -165,13 +277,31 @@ function startGame() {
   } else {
     mobileCtrl.classList.add('hidden');
   }
-  game.start(selectedCharId);
+  const options = { dailyMode: !!opts.dailyMode, mods: opts.mods || {} };
+  if (options.dailyMode) {
+    try {
+      const st = DailyGrid.getStatus();
+      if (st.event && st.event.mods) options.mods = { ...st.event.mods };
+    } catch (_) {}
+  }
+  game.start(selectedCharId, options);
 }
 
 // UI bindings
 document.getElementById('btn-play').addEventListener('click', () => {
   Audio.uiClick();
-  startGame();
+  startGame({ dailyMode: false });
+});
+
+document.getElementById('btn-daily-run')?.addEventListener('click', () => {
+  Audio.uiClick();
+  startGame({ dailyMode: true });
+});
+
+document.getElementById('btn-journey')?.addEventListener('click', () => {
+  Audio.uiClick();
+  renderJourney();
+  showScreen('journey');
 });
 
 document.getElementById('btn-howto')?.addEventListener('click', () => {

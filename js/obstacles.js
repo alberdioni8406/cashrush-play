@@ -157,6 +157,7 @@ export class ObstacleManager {
     this.list = [];
     this.spawnTimer = 0;
     this.spawnInterval = CONFIG.OBSTACLE_SPAWN_BASE;
+    this.spawnMult = 1;
     this.scale = 1;
   }
 
@@ -170,10 +171,14 @@ export class ObstacleManager {
     this.scale = s || 1;
   }
 
+  setMods(mods = {}) {
+    this.spawnMult = mods.spawnRate || 1;
+  }
+
   update(dt, speed, groundY, canvasW, score) {
     // Difficulty scaling
     const progress = Math.min(1, score / 50000);
-    this.spawnInterval = CONFIG.OBSTACLE_SPAWN_BASE - progress * (CONFIG.OBSTACLE_SPAWN_BASE - CONFIG.OBSTACLE_SPAWN_MIN);
+    this.spawnInterval = (CONFIG.OBSTACLE_SPAWN_BASE - progress * (CONFIG.OBSTACLE_SPAWN_BASE - CONFIG.OBSTACLE_SPAWN_MIN)) * (this.spawnMult || 1);
 
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {

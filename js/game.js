@@ -28,7 +28,7 @@ export class Game {
     this.rafId = null;
 
     // World state
-    this.speed = CONFIG.BASE_SPEED;
+    this.speed = CONFIG.BASE_SPEED * (this.dailyMods.speedMult || 1);
     this.distance = 0;
     this.score = 0;
     this.sats = 0;
@@ -81,7 +81,11 @@ export class Game {
     this.player.gravity = CONFIG.GRAVITY * s;
   }
 
-  start(charId) {
+  start(charId, options = {}) {
+    this.dailyMode = !!(options && options.dailyMode);
+    this.dailyMods = (options && options.mods) || {};
+    this.isDailyRun = !!(options && options.dailyMode);
+
     this.player.setCharacter(charId || Storage.get('selectedCharacter') || 'cash');
     this.player.reset();
     this.applyPlayerScale();
@@ -91,8 +95,11 @@ export class Game {
     this.obstacles.reset();
     this.collectibles.reset();
     this.powerups.reset();
+    this.obstacles.setMods?.(this.dailyMods);
+    this.collectibles.setMods?.(this.dailyMods);
+    this.powerups.setMods?.(this.dailyMods);
 
-    this.speed = CONFIG.BASE_SPEED;
+    this.speed = CONFIG.BASE_SPEED * (this.dailyMods.speedMult || 1);
     this.distance = 0;
     this.score = 0;
     this.sats = 0;
@@ -113,6 +120,7 @@ export class Game {
     this.sectorIndex = 0;
     this.sectorsCleared = 0;
     this.tookDamage = false;
+    this.orbsThisRun = 0;
     this.sectorBannerTimer = 180;
     this.lastTime = performance.now();
 
@@ -330,6 +338,11 @@ export class Game {
       if (c.rarity === 'legendary') {
         try { Achievements.recordLegendaryOrb(); } catch (_) {}
       }
+      this.orbsThisRun = (this.orbsThisRun || 0) + 1;
+      try {
+        const d = Storage.data; d.stats = d.stats || {};
+        d.stats.orbsCollected = (d.stats.orbsCollected || 0) + 1;
+      } catch (_) {}
     }
 
     this.score += value;
@@ -390,7 +403,14 @@ export class Game {
         sats: this.sats,
         maxCombo: this.maxCombo,
         isNewHigh,
-        sectorsCleared: this.sectorsCleared || 0
+        sectorsCleared: this.sectorsCleared || 0,
+        sectorReached: (this.sectorIndex || 0) + 1,
+        feeWallsJumped: this.feeWallsJumped || 0,
+        hashrushCount: this.hashrushCount || 0,
+        orbs: this.orbsThisRun || 0,
+        runTime: this.runTime || 0,
+        maxCombo: this.maxCombo || 1,
+        isDailyRun: !!this.isDailyRun
       });
     } catch (err) {
       console.warn('gameover UI event failed', err);
