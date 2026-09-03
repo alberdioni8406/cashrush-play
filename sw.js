@@ -1,7 +1,7 @@
 /**
  * CASHRUSH Service Worker — Offline caching
  */
-const CACHE = 'cashrush-v1';
+const CACHE = 'cashrush-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -18,7 +18,9 @@ const ASSETS = [
   './js/storage.js',
   './js/audio.js',
   './js/config.js',
-  './assets/images/icon.svg'
+  './js/daily.js',
+  './assets/images/icon.svg',
+  './assets/images/og-image.png'
 ];
 
 self.addEventListener('install', event => {
