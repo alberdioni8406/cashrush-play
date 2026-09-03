@@ -28,7 +28,10 @@ export class Game {
     this.rafId = null;
 
     // World state
-    this.speed = CONFIG.BASE_SPEED * (this.dailyMods.speedMult || 1);
+    this.dailyMods = {};
+    this.dailyMode = false;
+    this.isDailyRun = false;
+    this.speed = CONFIG.BASE_SPEED;
     this.distance = 0;
     this.score = 0;
     this.sats = 0;
