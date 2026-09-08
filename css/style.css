@@ -1231,3 +1231,28 @@ html, body {
 .journey-discovery.hidden {
   display: none;
 }
+
+/* Language select */
+.lang-select {
+  background: rgba(0, 20, 0, 0.8);
+  border: 1px solid var(--green-dim);
+  color: var(--green);
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  padding: 0.35rem 0.5rem;
+  max-width: 160px;
+  cursor: pointer;
+}
+
+.lang-select:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.25);
+}
+
+html[dir="rtl"] .menu-nav,
+html[dir="rtl"] .settings-list,
+html[dir="rtl"] .journey-content,
+html[dir="rtl"] .howto-content {
+  direction: rtl;
+}
