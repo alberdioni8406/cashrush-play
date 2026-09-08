@@ -8,6 +8,7 @@ import { Audio } from './audio.js';
 import { Characters } from './characters.js';
 import { Achievements } from './achievements.js';
 import { DailyGrid } from './daily.js';
+import { I18n, t } from './i18n.js';
 import { CONFIG } from './config.js';
 
 // Screens
@@ -84,6 +85,11 @@ async function boot() {
   isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
     ('ontouchstart' in window && window.innerWidth < 900);
 
+  // i18n
+  I18n.init();
+  I18n.applyDOM();
+  fillLanguageSelect();
+
   // Apply settings
   applySettings();
 
@@ -151,7 +157,7 @@ function renderDailyPanel(st) {
   panel.classList.toggle('completed', !!st.completed);
   const btn = document.getElementById('btn-daily-run');
   if (btn) {
-    btn.textContent = st.completed ? 'PLAY AGAIN' : 'PLAY DAILY RUN';
+    btn.textContent = st.completed ? t('play_again') : t('play_daily');
   }
 }
 
@@ -249,7 +255,7 @@ function onGameEvent(type, data) {
         const nameEl = document.getElementById('toast-name');
         const titleEl = toast?.querySelector('.toast-title');
         if (toast && nameEl) {
-          if (titleEl) titleEl.textContent = 'DAILY RUN COMPLETE';
+          if (titleEl) titleEl.textContent = t('daily_complete');
           nameEl.textContent = result.challenge.title;
           toast.classList.remove('hidden');
           requestAnimationFrame(() => toast.classList.add('show'));

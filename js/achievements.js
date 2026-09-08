@@ -6,11 +6,22 @@
 import { ACHIEVEMENTS } from './config.js';
 import { Storage } from './storage.js';
 import { Audio } from './audio.js';
+import { I18n, t } from './i18n.js';
 
 const MAIN_IDS = ACHIEVEMENTS.filter(a => !a.secret).map(a => a.id);
 
 function defById(id) {
   return ACHIEVEMENTS.find(a => a.id === id);
+}
+
+
+function localizedAch(def) {
+  if (!def) return def;
+  return {
+    ...def,
+    name: I18n.ach(def.id, 'name', def.name),
+    desc: I18n.ach(def.id, 'desc', def.desc),
+  };
 }
 
 export const Achievements = {
@@ -76,8 +87,9 @@ export const Achievements = {
     const titleEl = toast?.querySelector('.toast-title');
     if (!toast || !nameEl) return;
 
-    if (titleEl) titleEl.textContent = def.secret ? 'SECRET ACHIEVEMENT' : 'ACHIEVEMENT UNLOCKED';
-    nameEl.textContent = def.name;
+    const loc = localizedAch(def);
+    if (titleEl) titleEl.textContent = def.secret ? t('secret_ach') : t('ach_unlocked');
+    nameEl.textContent = loc.name;
 
     let actions = document.getElementById('toast-actions');
     if (!actions) {
@@ -85,8 +97,8 @@ export const Achievements = {
       actions.id = 'toast-actions';
       actions.className = 'toast-actions';
       actions.innerHTML = `
-        <button type="button" id="toast-view" class="toast-btn">VIEW</button>
-        <button type="button" id="toast-close" class="toast-btn primary">CLOSE</button>
+        <button type="button" id="toast-view" class="toast-btn">${t('view')}</button>
+        <button type="button" id="toast-close" class="toast-btn primary">${t('close')}</button>
       `;
       toast.appendChild(actions);
     }
@@ -191,13 +203,16 @@ export const Achievements = {
     return ACHIEVEMENTS.map(a => {
       const unlocked = Storage.hasAchievement(a.id);
       const progress = this.getProgress(a);
+      const loc = localizedAch(a);
       return {
         ...a,
+        name: loc.name,
+        desc: loc.desc,
         unlocked,
         progress,
-        displayName: a.secret && !unlocked ? 'SECRET ACHIEVEMENT' : a.name,
-        displayDesc: a.secret && !unlocked ? 'Keep exploring the Grid…' : a.desc,
-        displayReq: a.secret && !unlocked ? '???' : a.requirement
+        displayName: a.secret && !unlocked ? t('secret_ach') : loc.name,
+        displayDesc: a.secret && !unlocked ? t('secret_keep') : loc.desc,
+        displayReq: a.secret && !unlocked ? t('req_secret') : a.requirement
       };
     });
   },
@@ -248,29 +263,29 @@ export const Achievements = {
         .join(' ');
       discoveryHtml = `
         <div class="ach-discovery">
-          <div class="ach-discovery-title">DISCOVERY</div>
+          <div class="ach-discovery-title">${t('discovery')}</div>
           <div class="ach-discovery-heading">${def.discovery.title}</div>
           <p class="ach-discovery-body">${def.discovery.body.replace(/\n/g, '<br/>')}</p>
           ${links ? `<div class="ach-links">${links}</div>` : ''}
         </div>
       `;
     } else if (!unlocked) {
-      discoveryHtml = `<p class="ach-locked-note">Reach the goal to unlock this discovery.</p>`;
+      discoveryHtml = `<p class="ach-locked-note">${t('reach_goal')}</p>`;
     }
 
     panel.innerHTML = `
       <div class="ach-detail-panel">
         <button type="button" class="back-btn" id="ach-detail-close">← BACK</button>
         <div class="ach-detail-icon">${unlocked ? def.icon : '🔒'}</div>
-        <h3 class="ach-detail-name">${unlocked || !def.secret ? def.name : 'SECRET ACHIEVEMENT'}</h3>
-        <div class="ach-detail-status">${unlocked ? '✓ UNLOCKED' : 'LOCKED'}</div>
-        <p class="ach-detail-desc">${unlocked || !def.secret ? def.desc : 'Keep exploring the Grid…'}</p>
+        <h3 class="ach-detail-name">${unlocked || !def.secret ? localizedAch(def).name : t('secret_ach')}</h3>
+        <div class="ach-detail-status">${unlocked ? t('unlocked') : t('locked')}</div>
+        <p class="ach-detail-desc">${unlocked || !def.secret ? localizedAch(def).desc : t('secret_keep')}</p>
         <p class="ach-detail-req">${unlocked || !def.secret ? def.requirement : '???'}${def.target && !def.secret ? ` (${progress}/${def.target})` : ''}</p>
         ${discoveryHtml}
         ${unlocked ? `
           <div class="ach-detail-actions">
-            <button type="button" class="menu-btn primary" id="btn-download-card">DOWNLOAD CARD</button>
-            <button type="button" class="menu-btn" id="btn-share-card">SHARE</button>
+            <button type="button" class="menu-btn primary" id="btn-download-card">${t('download_card')}</button>
+            <button type="button" class="menu-btn" id="btn-share-card">${t('share')}</button>
           </div>
         ` : ''}
       </div>
@@ -332,18 +347,18 @@ export const Achievements = {
     ctx.fillStyle = '#39ff14';
     ctx.font = 'bold 28px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('ACHIEVEMENT UNLOCKED', W / 2, 280);
+    ctx.fillText(t('card_unlocked'), W / 2, 280);
 
     ctx.font = '120px monospace';
     ctx.fillText(def.icon || '★', W / 2, 420);
 
     ctx.fillStyle = '#f0fff0';
     ctx.font = 'bold 72px monospace';
-    ctx.fillText(def.name, W / 2, 540);
+    ctx.fillText(localizedAch(def).name, W / 2, 540);
 
     ctx.fillStyle = '#00e676';
     ctx.font = '32px monospace';
-    ctx.fillText(def.desc, W / 2, 610);
+    ctx.fillText(localizedAch(def).desc, W / 2, 610);
 
     const stat = meta.sats != null ? `${Number(meta.sats).toLocaleString()} SATS` :
       meta.distance != null ? `${Number(meta.distance).toLocaleString()} m` :
@@ -359,7 +374,7 @@ export const Achievements = {
 
     ctx.fillStyle = '#00a854';
     ctx.font = '24px monospace';
-    ctx.fillText('Run. Survive. Collect. Own.', W / 2, H - 120);
+    ctx.fillText(t('card_footer'), W / 2, H - 120);
     ctx.font = '20px monospace';
     ctx.fillText('cashrush-play.vercel.app', W / 2, H - 80);
 
