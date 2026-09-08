@@ -85,10 +85,14 @@ async function boot() {
   isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
     ('ontouchstart' in window && window.innerWidth < 900);
 
-  // i18n
-  I18n.init();
-  I18n.applyDOM();
-  fillLanguageSelect();
+  // i18n (never block boot on locale errors)
+  try {
+    I18n.init();
+    I18n.applyDOM();
+    if (typeof fillLanguageSelect === 'function') fillLanguageSelect();
+  } catch (e) {
+    console.warn('i18n init failed', e);
+  }
 
   // Apply settings
   applySettings();
@@ -110,6 +114,22 @@ async function boot() {
       console.warn('SW registration failed', e);
     }
   }
+}
+
+
+function fillLanguageSelect() {
+  const sel = document.getElementById('setting-language');
+  if (!sel) return;
+  sel.innerHTML = I18n.LOCALES.map(l =>
+    `<option value="${l.code}">${l.name}</option>`
+  ).join('');
+  sel.value = I18n.getLocale();
+  sel.onchange = () => {
+    I18n.setLocale(sel.value);
+    updateMenuStats();
+    try { Achievements.renderList(document.getElementById('achievements-list')); } catch (_) {}
+    try { renderJourney(); } catch (_) {}
+  };
 }
 
 function updateMenuStats() {
