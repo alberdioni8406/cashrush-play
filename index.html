@@ -36,11 +36,11 @@
     <div id="loading-screen" class="screen active">
       <div class="loading-content">
         <div class="logo-pixel">CASHRUSH</div>
-        <div class="tagline">Run. Survive. Collect. Own.</div>
+        <div class="tagline" data-i18n="tagline">Run. Survive. Collect. Own.</div>
         <div class="loading-bar-wrap">
           <div id="loading-bar" class="loading-bar"></div>
         </div>
-        <div id="loading-text" class="loading-text">Initializing Grid...</div>
+        <div id="loading-text" class="loading-text" data-i18n="loading">Initializing Grid...</div>
       </div>
     </div>
 
@@ -49,9 +49,9 @@
       <div class="menu-bg"></div>
       <div class="menu-content">
         <h1 class="logo-pixel">CASHRUSH</h1>
-        <p class="tagline">Run. Survive. Collect. Own.</p>
+        <p class="tagline" data-i18n="tagline">Run. Survive. Collect. Own.</p>
         <div id="daily-panel" class="daily-panel">
-          <div class="daily-label">TODAY'S GRID</div>
+          <div class="daily-label" data-i18n="todays_grid">TODAY'S GRID</div>
           <div id="daily-event-line" class="daily-event-line"></div>
           <div id="daily-challenge-title" class="daily-challenge-title">SAT RUSH</div>
           <div id="daily-challenge-desc" class="daily-challenge-desc">Collect 500 sats in a single run.</div>
@@ -61,24 +61,24 @@
           </div>
           <div id="daily-streak-line" class="daily-streak-line"></div>
           <div class="daily-actions">
-            <button id="btn-daily-run" class="menu-btn primary">PLAY DAILY RUN</button>
+            <button id="btn-daily-run" class="menu-btn primary" data-i18n="play_daily">PLAY DAILY RUN</button>
           </div>
         </div>
         <nav class="menu-nav">
-          <button id="btn-play" class="menu-btn">NORMAL RUN</button>
-          <button id="btn-journey" class="menu-btn">JOURNEY</button>
-          <button id="btn-howto" class="menu-btn">HOW TO PLAY</button>
-          <button id="btn-characters" class="menu-btn">CHARACTERS</button>
-          <button id="btn-achievements" class="menu-btn">ACHIEVEMENTS</button>
-          <button id="btn-settings" class="menu-btn">SETTINGS</button>
+          <button id="btn-play" class="menu-btn" data-i18n="normal_run">NORMAL RUN</button>
+          <button id="btn-journey" class="menu-btn" data-i18n="journey">JOURNEY</button>
+          <button id="btn-howto" class="menu-btn" data-i18n="howto">HOW TO PLAY</button>
+          <button id="btn-characters" class="menu-btn" data-i18n="characters">CHARACTERS</button>
+          <button id="btn-achievements" class="menu-btn" data-i18n="achievements">ACHIEVEMENTS</button>
+          <button id="btn-settings" class="menu-btn" data-i18n="settings">SETTINGS</button>
         </nav>
         <div class="menu-stats">
-          <div class="stat"><span class="stat-label">HIGH SCORE</span><span id="menu-highscore">0</span></div>
-          <div class="stat"><span class="stat-label">TOTAL SATS</span><span id="menu-totalsats">0</span></div>
-          <div class="stat"><span class="stat-label">STREAK</span><span id="menu-streak">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="high_score">HIGH SCORE</span><span id="menu-highscore">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="total_sats">TOTAL SATS</span><span id="menu-totalsats">0</span></div>
+          <div class="stat"><span class="stat-label" data-i18n="streak">STREAK</span><span id="menu-streak">0</span></div>
         </div>
         <div class="menu-donate">
-          <button id="btn-donate" class="donate-btn" title="Support the founder">♥ SUPPORT</button>
+          <button id="btn-donate" class="donate-btn" title="Support the founder" data-i18n="support">♥ SUPPORT</button>
         </div>
       </div>
     </div>
@@ -87,8 +87,8 @@
     <!-- How to Play -->
     <div id="howto-screen" class="screen">
       <div class="screen-header">
-        <button class="back-btn" data-back="main-menu">← BACK</button>
-        <h2>HOW TO PLAY</h2>
+        <button class="back-btn" data-back="main-menu" data-i18n="back">← BACK</button>
+        <h2 data-i18n="how_to_title">HOW TO PLAY</h2>
       </div>
       <div class="howto-content">
         <div class="howto-block">
@@ -122,7 +122,7 @@
           <h3>COMBO</h3>
           <p>Collect items in a streak to raise your multiplier. Missing for too long or crashing resets the combo.</p>
         </div>
-        <button id="btn-howto-play" class="menu-btn primary">GOT IT — PLAY</button>
+        <button id="btn-howto-play" class="menu-btn primary" data-i18n="got_it_play">GOT IT — PLAY</button>
       </div>
     </div>
 
@@ -130,8 +130,8 @@
     <!-- Journey / Personal progression -->
     <div id="journey-screen" class="screen">
       <div class="screen-header">
-        <button class="back-btn" data-back="main-menu">← BACK</button>
-        <h2>YOUR JOURNEY</h2>
+        <button class="back-btn" data-back="main-menu" data-i18n="back">← BACK</button>
+        <h2 data-i18n="your_journey">YOUR JOURNEY</h2>
       </div>
       <div class="journey-content">
         <div class="journey-grid">
@@ -157,18 +157,18 @@
     <!-- Character Select -->
     <div id="character-screen" class="screen">
       <div class="screen-header">
-        <button class="back-btn" data-back="main-menu">← BACK</button>
-        <h2>CHARACTERS</h2>
+        <button class="back-btn" data-back="main-menu" data-i18n="back">← BACK</button>
+        <h2 data-i18n="characters">CHARACTERS</h2>
       </div>
       <div id="character-list" class="character-list"></div>
-      <button id="btn-select-char" class="menu-btn primary">SELECT</button>
+      <button id="btn-select-char" class="menu-btn primary" data-i18n="select">SELECT</button>
     </div>
 
     <!-- Achievements -->
     <div id="achievements-screen" class="screen">
       <div class="screen-header">
-        <button class="back-btn" data-back="main-menu">← BACK</button>
-        <h2>ACHIEVEMENTS</h2>
+        <button class="back-btn" data-back="main-menu" data-i18n="back">← BACK</button>
+        <h2 data-i18n="achievements">ACHIEVEMENTS</h2>
       </div>
       <div id="achievements-list" class="achievements-list"></div>
       <div id="achievement-detail" class="achievement-detail hidden"></div>
@@ -177,34 +177,38 @@
     <!-- Settings -->
     <div id="settings-screen" class="screen">
       <div class="screen-header">
-        <button class="back-btn" data-back="main-menu">← BACK</button>
-        <h2>SETTINGS</h2>
+        <button class="back-btn" data-back="main-menu" data-i18n="back">← BACK</button>
+        <h2 data-i18n="settings">SETTINGS</h2>
       </div>
       <div class="settings-list">
         <label class="setting-row">
-          <span>Sound Effects</span>
+          <span data-i18n="language">Language</span>
+          <select id="setting-language" class="lang-select"></select>
+        </label>
+        <label class="setting-row">
+          <span data-i18n="sound_fx">Sound Effects</span>
           <input type="checkbox" id="setting-sfx" checked />
         </label>
         <label class="setting-row">
-          <span>Music</span>
+          <span data-i18n="music">Music</span>
           <input type="checkbox" id="setting-music" checked />
         </label>
         <label class="setting-row">
-          <span>Mobile Controls</span>
+          <span data-i18n="mobile_controls">Mobile Controls</span>
           <input type="checkbox" id="setting-mobile-controls" />
         </label>
         <label class="setting-row">
-          <span>Reduced Motion</span>
+          <span data-i18n="reduced_motion">Reduced Motion</span>
           <input type="checkbox" id="setting-reduced-motion" />
         </label>
         <div class="donate-section">
-          <div class="donate-title">SUPPORT THE FOUNDER</div>
-          <p class="donate-desc">CASHRUSH is free. If you enjoy it, you can send Bitcoin Cash to help keep the Grid running.</p>
-          <button id="btn-copy-donate" class="menu-btn primary donate-copy-btn">COPY BCH ADDRESS</button>
+          <div class="donate-title" data-i18n="support_founder">SUPPORT THE FOUNDER</div>
+          <p class="donate-desc" data-i18n="donate_desc">CASHRUSH is free. If you enjoy it, you can send Bitcoin Cash to help keep the Grid running.</p>
+          <button id="btn-copy-donate" class="menu-btn primary donate-copy-btn" data-i18n="copy_bch">COPY BCH ADDRESS</button>
           <div id="donate-address" class="donate-address">bitcoincash:qrlluw2ekm2zmp4qn52ashn4qt9xhhg405gcrzehu5</div>
-          <div id="donate-copied" class="donate-copied hidden">Address copied!</div>
+          <div id="donate-copied" class="donate-copied hidden" data-i18n="address_copied">Address copied!</div>
         </div>
-        <button id="btn-reset-data" class="menu-btn danger">RESET ALL DATA</button>
+        <button id="btn-reset-data" class="menu-btn danger" data-i18n="reset_data">RESET ALL DATA</button>
       </div>
     </div>
 
@@ -214,27 +218,27 @@
       <div id="hud">
         <div class="hud-top">
           <div class="hud-item">
-            <span class="hud-label">SCORE</span>
+            <span class="hud-label" data-i18n="score">SCORE</span>
             <span id="hud-score">0</span>
           </div>
           <div class="hud-item">
-            <span class="hud-label">SATS</span>
+            <span class="hud-label" data-i18n="sats">SATS</span>
             <span id="hud-sats">0</span>
           </div>
           <div class="hud-item">
-            <span class="hud-label">DIST</span>
+            <span class="hud-label" data-i18n="dist">DIST</span>
             <span id="hud-distance">0m</span>
           </div>
           <div class="hud-item combo-hud">
-            <span class="hud-label">COMBO</span>
+            <span class="hud-label" data-i18n="combo">COMBO</span>
             <span id="hud-combo">x1</span>
           </div>
           <div class="hud-item">
-            <span class="hud-label">SECTOR</span>
+            <span class="hud-label" data-i18n="sector">SECTOR</span>
             <span id="hud-sector">S1</span>
           </div>
           <div class="hud-item">
-            <span class="hud-label">GOAL</span>
+            <span class="hud-label" data-i18n="goal">GOAL</span>
             <span id="hud-goal">400m</span>
           </div>
         </div>
@@ -253,10 +257,10 @@
     <!-- Pause Overlay -->
     <div id="pause-overlay" class="overlay">
       <div class="overlay-content">
-        <h2>PAUSED</h2>
-        <button id="btn-resume" class="menu-btn primary">RESUME</button>
-        <button id="btn-restart" class="menu-btn">RESTART</button>
-        <button id="btn-quit" class="menu-btn">QUIT TO MENU</button>
+        <h2 data-i18n="paused">PAUSED</h2>
+        <button id="btn-resume" class="menu-btn primary" data-i18n="resume">RESUME</button>
+        <button id="btn-restart" class="menu-btn" data-i18n="restart">RESTART</button>
+        <button id="btn-quit" class="menu-btn" data-i18n="quit_menu">QUIT TO MENU</button>
       </div>
     </div>
 
@@ -278,7 +282,7 @@
     <!-- Game Over -->
     <div id="gameover-overlay" class="overlay">
       <div class="overlay-content">
-        <h2>GAME OVER</h2>
+        <h2 data-i18n="game_over">GAME OVER</h2>
         <div class="gameover-stats">
           <div class="go-stat"><span>SCORE</span><span id="go-score">0</span></div>
           <div class="go-stat"><span>DISTANCE</span><span id="go-distance">0m</span></div>
@@ -287,8 +291,8 @@
           <div class="go-stat"><span>SECTORS</span><span id="go-sectors">0</span></div>
           <div class="go-stat highscore" id="go-new-high" style="display:none"><span>NEW HIGH SCORE!</span></div>
         </div>
-        <button id="btn-retry" class="menu-btn primary">RUN AGAIN</button>
-        <button id="btn-menu" class="menu-btn">MAIN MENU</button>
+        <button id="btn-retry" class="menu-btn primary" data-i18n="run_again">RUN AGAIN</button>
+        <button id="btn-menu" class="menu-btn" data-i18n="main_menu">MAIN MENU</button>
       </div>
     </div>
 
@@ -296,12 +300,12 @@
     <div id="achievement-toast" class="achievement-toast hidden">
       <div class="toast-icon">★</div>
       <div class="toast-text">
-        <div class="toast-title">ACHIEVEMENT UNLOCKED</div>
+        <div class="toast-title" data-i18n="ach_unlocked">ACHIEVEMENT UNLOCKED</div>
         <div id="toast-name" class="toast-name"></div>
       </div>
       <div id="toast-actions" class="toast-actions">
-        <button type="button" id="toast-view" class="toast-btn">VIEW</button>
-        <button type="button" id="toast-close" class="toast-btn primary">CLOSE</button>
+        <button type="button" id="toast-view" class="toast-btn" data-i18n="view">VIEW</button>
+        <button type="button" id="toast-close" class="toast-btn primary" data-i18n="close">CLOSE</button>
       </div>
     </div>
 

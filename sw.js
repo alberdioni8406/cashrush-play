@@ -1,7 +1,7 @@
 /**
  * CASHRUSH Service Worker — Offline caching
  */
-const CACHE = 'cashrush-v2';
+const CACHE = 'cashrush-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const ASSETS = [
   './js/audio.js',
   './js/config.js',
   './js/daily.js',
+  './js/i18n.js',
   './assets/images/icon.svg',
   './assets/images/og-image.png'
 ];
